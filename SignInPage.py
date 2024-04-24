@@ -1,8 +1,7 @@
 from customtkinter import *
+import customtkinter
 import csv
 
-app = CTk()
-app.geometry("500x500")
 data = 'dataforsat.csv'
 records = []
 showstate = "*"
@@ -17,39 +16,87 @@ with open(data, 'r') as file:
 
         records.append([ids, usernames, pwords])
 
-
 print(records)
 
-def logHandler():
-    for i, row in enumerate(records):
-        if entry.get() == row[1]:
-            print("TESTINGG")
+class MainPage(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Inventory Tracker")
+        self.geometry("1920x1080")
 
-def hiddenHandler():
-    global showstate
-    showstate = rad.get()
-    entry2.configure(show=showstate)
 
-frame = CTkFrame(master=app, width=400, height=300, fg_color="#9B9B9B")
-frame.pack_propagate(0)
-frame.pack(expand=True)
+class SignIn(customtkinter.CTkToplevel):
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+        self.title("Sign In")
+        self.geometry("800x600")
 
-label = CTkLabel(master=frame, text="Welcome!", text_color="black", font=('Cooper Black', 50))
-label.pack(anchor="n", expand=True)
+        def hiddenHandler():
+            global showstate
+            showstate = self.rad.get()
+            self.entry2.configure(show=showstate)
 
-labelu = CTkLabel(master=frame, text="Enter details to log in", text_color="black")
-labelu.pack(anchor="n", expand=True)
+        def logHandler():
+            for row in records:
+                if self.entry.get() == row[1]:
+                    print("TESTINGG")
+                    if self.entry2.get() == row[2]:
+                        print("Sign in Successful")
+                        self.withdraw()  # hide the SignIn window
+                        self.app.deiconify()  # show the MainPage window
+                        return
 
-entry = CTkEntry(master=frame, placeholder_text="Username")
-entry.pack(anchor="n", expand=True)
+        def regHandler():
+            SignInWindow.withdraw()
+            registerWindow = Registry(SignInWindow)
+            registerWindow.mainloop()
 
-entry2 = CTkEntry(master=frame, placeholder_text="Password", show=showstate)
-entry2.pack(anchor="n", expand=True)
+        self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
+        self.frame.grid()
 
-rad = CTkCheckBox(master=frame,border_color="black", text="Show password", command=hiddenHandler, onvalue="", offvalue="*")
-rad.pack(side="right",padx=50, pady=20)
+        self.label = CTkLabel(self.frame, text="Welcome!", text_color="black", font=('Cooper Black', 50))
+        self.label.grid(column=1, row=1, padx=(250,250), columnspan=4)
 
-btn = CTkButton(master=frame, text="Submit", command=logHandler)
-btn.pack(expand=True,padx=50, pady=20, side="left")
+        self.labelu = CTkLabel(self.frame, text="Enter details to log in", text_color="black")
+        self.labelu.grid(column=1,row=2, columnspan=4, pady=(0,50))
 
-app.mainloop()
+        self.entry = CTkEntry(self.frame, placeholder_text="Username",height=30, width=280)
+        self.entry.grid(column=1,row=3, columnspan=4,pady=(0,10))
+
+        self.entry2 = CTkEntry(self.frame, placeholder_text="Password", show=showstate, height=30, width=280)
+        self.entry2.grid(column=1, row=4, columnspan=4,pady=(0,100))
+
+        self.btn = CTkButton(self.frame, text="Submit", command=logHandler)
+        self.btn.grid(column=1,row=6, columnspan=2, pady=5)
+
+        self.btn = CTkButton(self.frame, text="Register", command=regHandler)
+        self.btn.grid(column=2, row=6, columnspan=2, pady=5)
+
+        self.rad = CTkCheckBox(self.frame, border_color="black", text="Show password", command=hiddenHandler, onvalue="", offvalue="*")
+        self.rad.grid(column=3, row=6, columnspan=3, pady=5)
+
+class Registry(customtkinter.CTkToplevel):
+    def __init__(self, sign_in_window):
+        super().__init__()
+        self.sign_in_window = sign_in_window
+
+        self.frame2 = CTkFrame(self, width=500, height=300, fg_color="#9B9B9B")
+        self.frame2.pack(expand=True)
+
+        def regBack():
+            self.withdraw()
+            self.sign_in_window.deiconify()
+
+        self.title("Register")
+        self.geometry("800x200")
+
+        self.btn = CTkButton(self.frame2, text="Back", command=regBack)
+        self.btn.grid(pady=5)
+
+
+
+app = MainPage()
+SignInWindow = SignIn(app)
+SignInWindow.mainloop()
+
