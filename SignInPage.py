@@ -30,9 +30,9 @@ class SignIn(customtkinter.CTkToplevel):
         super().__init__()
         self.app = app
         self.title("Sign In")
-        self.geometry("800x600")
+        self.geometry("735x405")
 
-        def hiddenHandler():
+        def hidHandler():
             global showstate
             showstate = self.rad.get()
             self.entry2.configure(show=showstate)
@@ -56,7 +56,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.frame.grid()
 
         self.label = CTkLabel(self.frame, text="Welcome!", text_color="black", font=('Cooper Black', 50))
-        self.label.grid(column=1, row=1, padx=(250,250), columnspan=4)
+        self.label.grid(column=1, row=1, padx=(250,250),pady=(50,0), columnspan=4)
 
         self.labelu = CTkLabel(self.frame, text="Enter details to log in", text_color="black")
         self.labelu.grid(column=1,row=2, columnspan=4, pady=(0,50))
@@ -68,13 +68,13 @@ class SignIn(customtkinter.CTkToplevel):
         self.entry2.grid(column=1, row=4, columnspan=4,pady=(0,100))
 
         self.btn = CTkButton(self.frame, text="Submit", command=logHandler)
-        self.btn.grid(column=1,row=6, columnspan=2, pady=5)
+        self.btn.grid(column=1,row=6, columnspan=2, pady=(5,15))
 
         self.btn = CTkButton(self.frame, text="Register", command=regHandler)
-        self.btn.grid(column=2, row=6, columnspan=2, pady=5)
+        self.btn.grid(column=2, row=6, columnspan=2, pady=(5,15))
 
-        self.rad = CTkCheckBox(self.frame, border_color="black", text="Show password", command=hiddenHandler, onvalue="", offvalue="*")
-        self.rad.grid(column=3, row=6, columnspan=3, pady=5)
+        self.rad = CTkCheckBox(self.frame, border_color="black", text="Show password", command=hidHandler, onvalue="", offvalue="*")
+        self.rad.grid(column=3, row=6, columnspan=3, pady=(5,15))
 
 class Registry(customtkinter.CTkToplevel):
     def __init__(self, sign_in_window):
@@ -99,4 +99,3 @@ class Registry(customtkinter.CTkToplevel):
 app = MainPage()
 SignInWindow = SignIn(app)
 SignInWindow.mainloop()
-
