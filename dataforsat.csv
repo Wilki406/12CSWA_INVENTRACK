@@ -1,8 +1,9 @@
-﻿ID,username,password
-1,wilki,meow
-2,parra,poo
-3,sood,smell
-4,smith,t
-5,berto,t
-6,galea,t
-7,moran,cologne
+ID,username,password,firstName,lastName,
+1,wilki,meow,Benjamin,Wilkinson
+2,acuteangle,poo,Angel,Parra
+3,nihongojosu,smell,Siddharth,Sood
+4,dwayno,t,Dwayne,Smith
+5,Passy,t,Pasan,Ranathun Gamage
+6,quadzilla,t,Brodie,Galea
+7,springroll,cologne,Nicholas,Moran
+8,bugs,t,Lakshmi,Damera
