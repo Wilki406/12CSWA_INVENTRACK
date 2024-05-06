@@ -6,11 +6,13 @@ data = 'dataforsat.csv'
 records = []
 idRank = []
 headers = ["ID","username","password","firstName","lastName"]
+usernameLists = []
 
 def loadData():
     with open(data, 'r') as file:
         reader = csv.reader(file)
         next(reader)
+
         for row in reader:
             ids = row[0]
             usernames = row[1]
@@ -19,11 +21,28 @@ def loadData():
             lastNames = row[4]
 
             idRank.append(int(ids))
+            usernameLists.append(usernames)
             records.append([ids, usernames, passwords, firstNames, lastNames])
 
-    print(records)
-    return records
-loadData()
+    return records, usernameLists, idRank
+
+
+records,usernameLists,idRank = loadData()
+
+with open(data, 'r') as file:
+    reader = csv.reader(file)
+    next(reader)
+
+    for row in reader:
+        ids = row[0]
+        usernames = row[1]
+        passwords = row[2]
+        firstNames = row[3]
+        lastNames = row[4]
+
+        idRank.append(int(ids))
+        usernameLists.append(usernames)
+        records.append([ids, usernames, passwords, firstNames, lastNames])
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
@@ -37,7 +56,7 @@ class SignIn(customtkinter.CTkToplevel):
         super().__init__()
         self.app = signApp
         self.title("Sign In")
-        self.geometry("700x400")
+        self.geometry("700x393")
         self.resizable(width=False, height=False)
 
         showstate = "*"
@@ -56,20 +75,20 @@ class SignIn(customtkinter.CTkToplevel):
                 self.labelsign.configure(text="! Enter your username", text_color="red")
             elif self.passwordEntry.get() == "":
                 self.labelsign.configure(text="! Enter your password", text_color="red")
+            else:
+                for row in records:
+                    if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
+                        fName = row[3]
+                        lName = row[4]
 
-            for row in records:
-                if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
-                    fname = row[3]
-                    lname = row[4]
+                        print(f"Sign in Successful, {fName} {lName}!")
 
-                    print(f"Sign in Successful, {fname} {lname}!")
+                        self.withdraw()
+                        self.app.deiconify()
+                        return
 
-                    self.withdraw()  # hide the SignIn window
-                    self.app.deiconify()  # show the MainPage window
-                    return
-
-
-
+                    else:
+                        self.labelsign.configure(text="! Password is incorrect", text_color="red")
 
 
 
@@ -110,7 +129,7 @@ class SignIn(customtkinter.CTkToplevel):
 class Registry(customtkinter.CTkToplevel):
     def __init__(self, sign_in_window):
         super().__init__()
-        newUserData = []
+
 
         self.sign_in_window = sign_in_window
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
@@ -128,73 +147,73 @@ class Registry(customtkinter.CTkToplevel):
             return count
 
         def regSignup():
-                if self.nameEntry.get() == "":
-                    self.nameEntry.configure(border_color="red")
+            records, usernameLists, idRank = loadData()
+            if self.nameEntry.get() == "":
+                self.nameEntry.configure(border_color="red")
 
-                if self.nameEntry.get() != "":
-                    self.nameEntry.configure(border_color="gray")
+            if self.nameEntry.get() != "":
+                self.nameEntry.configure(border_color="gray")
 
-                if self.usernameEntry.get() == "":
-                    self.usernameEntry.configure(border_color="red")
+            if self.usernameEntry.get() == "":
+                self.usernameEntry.configure(border_color="red")
 
-                if self.usernameEntry.get() != "":
-                    self.usernameEntry.configure(border_color="gray")
+            if self.usernameEntry.get() != "":
+                self.usernameEntry.configure(border_color="gray")
 
-                if self.passwordEntry.get() == "":
-                    self.passwordEntry.configure(border_color="red")
+            if self.passwordEntry.get() == "":
+                self.passwordEntry.configure(border_color="red")
 
-                if self.passwordEntry.get() != "":
-                    self.passwordEntry.configure(border_color="gray")
+            if self.passwordEntry.get() != "":
+                self.passwordEntry.configure(border_color="gray")
 
-                if self.rePasswordEntry.get() == "":
-                    self.rePasswordEntry.configure(border_color="red")
+            if self.rePasswordEntry.get() == "":
+                self.rePasswordEntry.configure(border_color="red")
 
-                if self.rePasswordEntry.get() != "":
-                    self.rePasswordEntry.configure(border_color="gray")
+            if self.rePasswordEntry.get() != "":
+                self.rePasswordEntry.configure(border_color="gray")
 
-                if self.nameEntry.get() and self.usernameEntry.get() and self.passwordEntry.get() and self.rePasswordEntry.get() != "":
-                    fullname = self.nameEntry.get()
-                    username = self.usernameEntry.get()
-                    firstPassword = self.passwordEntry.get()
-                    secondPassword = self.rePasswordEntry.get()
+            if self.nameEntry.get() and self.usernameEntry.get() and self.passwordEntry.get() and self.rePasswordEntry.get() != "":
+                fullname = self.nameEntry.get()
+                username = self.usernameEntry.get()
+                firstPassword = self.passwordEntry.get()
+                secondPassword = self.rePasswordEntry.get()
 
-                    firstn = ""
-                    lastnfirst = ""
-                    lastntwo = ""
+                firstn = ""
+                lastnfirst = ""
+                lastntwo = ""
 
-                    if checkSpace(self.nameEntry.get()) == 2:
-                        [firstn, lastnfirst, lastntwo] = fullname.split(' ')
-                        lastname = lastnfirst + lastntwo
-                    elif checkSpace(self.nameEntry.get()) == 1:
-                        [firstn, lastnfirst] = fullname.split(' ')
-                        lastname = lastnfirst
+                if checkSpace(self.nameEntry.get()) == 2:
+                    [firstn, lastnfirst, lastntwo] = fullname.split(' ')
+                    lastname = lastnfirst + " " + lastntwo
+                elif checkSpace(self.nameEntry.get()) == 1:
+                    [firstn, lastnfirst] = fullname.split(' ')
+                    lastname = lastnfirst
 
-                    if firstPassword == secondPassword:
-                        print("passwords match")
+                if firstPassword == secondPassword:
+                    print("passwords match")
+                    print(username, usernameLists)
 
+                    if username not in usernameLists:
 
-                        if username not in usernames:
-                            print("username is unique")
-                            userDesRank = idRank[-1] + 1
+                        print("username is unique")
+                        userDesRank = idRank[-1] + 1
 
-                            newlist = [userDesRank, username, firstPassword, firstn, lastname]
+                        newlist = [userDesRank, username, firstPassword, firstn, lastname]
 
-                            with open(data, 'w', newline='') as file:
+                        with open(data, 'w', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow(headers)
+                            writer.writerows(records)
+                            writer.writerow(newlist)
 
-                                writer = csv.writer(file)
-                                writer.writerow(headers)
-                                writer.writerows(records)
-                                writer.writerow(newlist)
+                        print(newlist)
 
-                            print(newlist)
-                            loadData()
-                            regBack()
-                        else:
-                            print("username is not unique")
+                        regBack()
+                    else:
+                        print("username is not unique")
 
-
-
-
+                elif firstPassword != secondPassword:
+                    print("passwords don't match")
 
 
         self.title("Register")
@@ -211,11 +230,11 @@ class Registry(customtkinter.CTkToplevel):
         self.usernameEntry.grid(column=1, row=3, columnspan=2, pady=(0, 10))
 
         self.passwordEntry = CTkEntry(self.frame, placeholder_text="Password", height=30, width=280,
-                                      placeholder_text_color="Grey")
+                                      placeholder_text_color="Grey",show="*")
         self.passwordEntry.grid(column=1, row=4, columnspan=4, pady=(0, 10))
 
         self.rePasswordEntry = CTkEntry(self.frame, placeholder_text="Re-enter password", height=30, width=280,
-                                        placeholder_text_color="Grey")
+                                        placeholder_text_color="Grey",show="*")
         self.rePasswordEntry.grid(column=1, row=5, columnspan=4, pady=(0, 10))
 
         self.createBtn = CTkButton(self.frame, text="Create account", command=regSignup)
