@@ -29,20 +29,7 @@ def loadData():
 
 records,usernameLists,idRank = loadData()
 
-with open(data, 'r') as file:
-    reader = csv.reader(file)
-    next(reader)
 
-    for row in reader:
-        ids = row[0]
-        usernames = row[1]
-        passwords = row[2]
-        firstNames = row[3]
-        lastNames = row[4]
-
-        idRank.append(int(ids))
-        usernameLists.append(usernames)
-        records.append([ids, usernames, passwords, firstNames, lastNames])
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
