@@ -5,7 +5,7 @@ import csv
 data = 'dataforsat.csv'
 records = []
 idRank = []
-headers = ["ID","username","password","firstName","lastName,"]
+headers = ["ID","username","password","firstName","lastName"]
 
 def loadData():
     with open(data, 'r') as file:
@@ -23,22 +23,7 @@ def loadData():
 
     print(records)
     return records
-
-with open(data, 'r') as file:
-    reader = csv.reader(file)
-    next(reader)
-    for row in reader:
-        ids = row[0]
-        usernames = row[1]
-        passwords = row[2]
-        firstNames = row[3]
-        lastNames = row[4]
-
-        idRank.append(int(ids))
-        records.append([ids, usernames, passwords, firstNames, lastNames])
-print(records)
-
-
+loadData()
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
