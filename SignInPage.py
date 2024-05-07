@@ -5,8 +5,9 @@ import csv
 data = 'dataforsat.csv'
 records = []
 idRank = []
-headers = ["ID","username","password","firstName","lastName"]
 usernameLists = []
+headers = ["ID","username","password","firstName","lastName"]
+
 
 def loadData():
     with open(data, 'r') as file:
@@ -26,9 +27,7 @@ def loadData():
 
     return records, usernameLists, idRank
 
-
-records,usernameLists,idRank = loadData()
-
+records, usernameLists, idRank = loadData()
 
 
 class MainPage(customtkinter.CTk):
@@ -47,7 +46,6 @@ class SignIn(customtkinter.CTkToplevel):
         self.resizable(width=False, height=False)
 
         showstate = "*"
-        logFeedback = ""
 
         def hidHandler():
             global showstate
@@ -103,8 +101,8 @@ class SignIn(customtkinter.CTkToplevel):
         self.rad = CTkCheckBox(self.frame, border_color="black", text="Show password", command=hidHandler, onvalue="", offvalue="*")
         self.rad.grid(column=1, row=5, columnspan=4, pady=(5, 20))
 
-        self.labelsign = CTkLabel(self.frame, text=logFeedback, text_color="black", font=('Berlin Sans FB', 20))
-        self.labelsign.grid(column=1, row=6, padx=(250, 250), pady=(0, 10), columnspan=4)
+        self.labelsign = CTkLabel(self.frame, text="", text_color="black", font=('Comic Sans MS', 20))
+        self.labelsign.grid(column=1, row=6, padx=(0, 0), pady=(0, 10), columnspan=4,sticky='ns')
 
         self.btn = CTkButton(self.frame, text="Login", command=logHandler, fg_color="#30a474", hover_color="#1c5c41")
         self.btn.grid(column=1, row=7, columnspan=4, pady=(5, 20), padx=(50, 230))
@@ -116,13 +114,13 @@ class SignIn(customtkinter.CTkToplevel):
 class Registry(customtkinter.CTkToplevel):
     def __init__(self, sign_in_window):
         super().__init__()
-
-
+        logFeedback = ""
         self.sign_in_window = sign_in_window
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
         self.frame.grid()
 
         def regBack():
+            records, usernameLists, idRank = loadData()
             self.withdraw()
             self.sign_in_window.deiconify()
 
@@ -134,7 +132,6 @@ class Registry(customtkinter.CTkToplevel):
             return count
 
         def regSignup():
-            records, usernameLists, idRank = loadData()
             if self.nameEntry.get() == "":
                 self.nameEntry.configure(border_color="red")
 
@@ -169,16 +166,21 @@ class Registry(customtkinter.CTkToplevel):
                 lastnfirst = ""
                 lastntwo = ""
 
-                if checkSpace(self.nameEntry.get()) == 2:
+                if checkSpace(self.nameEntry.get()) == 0:
+                    self.labelsign.configure(text="! Enter last name", text_color="red")
+                    return
+
+                elif checkSpace(self.nameEntry.get()) == 2:
                     [firstn, lastnfirst, lastntwo] = fullname.split(' ')
                     lastname = lastnfirst + " " + lastntwo
                 elif checkSpace(self.nameEntry.get()) == 1:
                     [firstn, lastnfirst] = fullname.split(' ')
                     lastname = lastnfirst
+                #elif checkSpace(self.nameEntry.get()) == 0:
+
 
                 if firstPassword == secondPassword:
                     print("passwords match")
-                    print(username, usernameLists)
 
                     if username not in usernameLists:
 
@@ -193,14 +195,18 @@ class Registry(customtkinter.CTkToplevel):
                             writer.writerows(records)
                             writer.writerow(newlist)
 
-                        print(newlist)
-
                         regBack()
+                        print("new user added")
                     else:
                         print("username is not unique")
+                        self.labelsign.configure(text="! Username taken", text_color="red")
 
                 elif firstPassword != secondPassword:
                     print("passwords don't match")
+                    self.labelsign.configure(text="! Passwords do not match", text_color="red")
+
+            else:
+                self.labelsign.configure(text="! Enter Details", text_color="red")
 
 
         self.title("Register")
@@ -225,14 +231,17 @@ class Registry(customtkinter.CTkToplevel):
         self.rePasswordEntry.grid(column=1, row=5, columnspan=4, pady=(0, 10))
 
         self.createBtn = CTkButton(self.frame, text="Create account", command=regSignup)
-        self.createBtn.grid(column=1, row=6, columnspan=2, pady=(5, 15))
+        self.createBtn.grid(column=1, row=6, columnspan=2, pady=(5, 10))
+
+        self.labelsign = CTkLabel(self.frame, text="", text_color="black", font=('Comic Sans MS', 20),)
+        self.labelsign.grid(column=1, row=7, padx=(0, 0), pady=(0, 5), columnspan=4, sticky='ns')
 
         self.label = CTkLabel(self.frame, text="Already got an account?", text_color="black",
                               font=('Berlin Sans FB', 20))
-        self.label.grid(column=1, row=7, padx=(250, 250), pady=(0, 15), columnspan=2)
+        self.label.grid(column=1, row=8, padx=(250, 250), pady=(0, 10), columnspan=2)
 
         self.btn = CTkButton(self.frame, text="Login", command=regBack)
-        self.btn.grid(column=1, row=8, padx=(250, 250), pady=(0, 50), columnspan=2)
+        self.btn.grid(column=1, row=9, padx=(250, 250), pady=(0, 50), columnspan=2)
 
 
 app = MainPage()
