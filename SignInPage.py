@@ -45,6 +45,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.geometry("700x393")
         self.resizable(width=False, height=False)
 
+
         showstate = "*"
 
         def hidHandler():
@@ -52,14 +53,23 @@ class SignIn(customtkinter.CTkToplevel):
             showstate = self.rad.get()
             self.passwordEntry.configure(show=showstate)
 
+        def clearEntries():
+            self.passwordEntry.delete(0,END)
+            self.userEntry.delete(0,END)
+
+            self.passwordEntry.configure(placeholder_text="Password")
+            self.userEntry.configure(placeholder_text="Username")
+
+            self.labelsign.configure(text="")
+
         def logHandler():
 
             if self.userEntry.get() == "" and self.passwordEntry.get() == "":
-                self.labelsign.configure(text="! Enter your details", text_color="red")
+                self.labelsign.configure(text="Enter your details", text_color="red")
             elif self.userEntry.get() == "":
-                self.labelsign.configure(text="! Enter your username", text_color="red")
+                self.labelsign.configure(text="Enter your username", text_color="red")
             elif self.passwordEntry.get() == "":
-                self.labelsign.configure(text="! Enter your password", text_color="red")
+                self.labelsign.configure(text="Enter your password", text_color="red")
             else:
                 for row in records:
                     if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
@@ -73,14 +83,15 @@ class SignIn(customtkinter.CTkToplevel):
                         return
 
                     else:
-                        self.labelsign.configure(text="! Password is incorrect", text_color="red")
-
-
+                        self.labelsign.configure(text="Username and or password is incorrect", text_color="red")
 
         def regHandler():
+            clearEntries()
             SignInWindow.withdraw()
             registerWindow = Registry(SignInWindow)
             registerWindow.mainloop()
+
+
 
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
         self.frame.grid()
@@ -88,8 +99,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.label = CTkLabel(self.frame, text="Welcome!", text_color="black", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(250, 250), pady=(40, 0), columnspan=4)
 
-        self.labelu = CTkLabel(self.frame, text="Enter details to log in", text_color="black",
-                               font=('Berlin Sans FB', 20))
+        self.labelu = CTkLabel(self.frame, text="Enter details to log in", text_color="black", font=('Berlin Sans FB', 20))
         self.labelu.grid(column=1, row=2, columnspan=4, pady=(0, 50))
 
         self.userEntry = CTkEntry(self.frame, placeholder_text="Username", height=30, width=280)
@@ -167,7 +177,7 @@ class Registry(customtkinter.CTkToplevel):
                 lastntwo = ""
 
                 if checkSpace(self.nameEntry.get()) == 0:
-                    self.labelsign.configure(text="! Enter last name", text_color="red")
+                    self.labelsign.configure(text="Enter last name", text_color="red")
                     return
 
                 elif checkSpace(self.nameEntry.get()) == 2:
@@ -199,14 +209,14 @@ class Registry(customtkinter.CTkToplevel):
                         print("new user added")
                     else:
                         print("username is not unique")
-                        self.labelsign.configure(text="! Username taken", text_color="red")
+                        self.labelsign.configure(text="Username taken", text_color="red")
 
                 elif firstPassword != secondPassword:
                     print("passwords don't match")
-                    self.labelsign.configure(text="! Passwords do not match", text_color="red")
+                    self.labelsign.configure(text="Passwords do not match", text_color="red")
 
             else:
-                self.labelsign.configure(text="! Enter Details", text_color="red")
+                self.labelsign.configure(text="Enter Details", text_color="red")
 
 
         self.title("Register")
