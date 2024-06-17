@@ -142,29 +142,18 @@ class Registry(customtkinter.CTkToplevel):
             return count
 
         def regSignup():
-            if self.nameEntry.get() == "":
-                self.nameEntry.configure(border_color="red")
+            entries = {
+                "nameEntry": self.nameEntry,
+                "usernameEntry": self.usernameEntry,
+                "passwordEntry": self.passwordEntry,
+                "rePasswordEntry": self.rePasswordEntry
+            }
 
-            if self.nameEntry.get() != "":
-                self.nameEntry.configure(border_color="gray")
-
-            if self.usernameEntry.get() == "":
-                self.usernameEntry.configure(border_color="red")
-
-            if self.usernameEntry.get() != "":
-                self.usernameEntry.configure(border_color="gray")
-
-            if self.passwordEntry.get() == "":
-                self.passwordEntry.configure(border_color="red")
-
-            if self.passwordEntry.get() != "":
-                self.passwordEntry.configure(border_color="gray")
-
-            if self.rePasswordEntry.get() == "":
-                self.rePasswordEntry.configure(border_color="red")
-
-            if self.rePasswordEntry.get() != "":
-                self.rePasswordEntry.configure(border_color="gray")
+            for entry_name, entry_field in entries.items():
+                if entry_field.get() == "":
+                    entry_field.configure(border_color="red")
+                else:
+                    entry_field.configure(border_color="gray")
 
             if self.nameEntry.get() and self.usernameEntry.get() and self.passwordEntry.get() and self.rePasswordEntry.get() != "":
                 fullname = self.nameEntry.get()
