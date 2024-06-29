@@ -54,56 +54,63 @@ class MainPage(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=300, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky='nsew')
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
-        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color="#33F2FF",font=('Berlin Sans FB', 28))
+        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color="#33F2FF", font=('Berlin Sans FB', 28))
         self.titletext.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # sidebar tab buttons
-        self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color='#EA0000', hover_color='#B20000', width=175, height=60, corner_radius=0,command=self.inventoryPage)
+        self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color='#EA0000', hover_color='#B20000',
+                                                width=175, height=60, corner_radius=0, command=self.goInventoryPage)
         self.bt_inven.grid(row=1, column=0, pady=30)
 
-        self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color='#EA0000',hover_color='#B20000', width=175, height=60, corner_radius=0,command=self.dash)
+        self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color='#EA0000', hover_color='#B20000',
+                                                 width=175, height=60, corner_radius=0, command=self.goReportPage)
         self.bt_report.grid(row=2, column=0, pady=30)
 
-        self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color='#EA0000',hover_color='#B20000', width=175, height=60, corner_radius=0,command=self.statement)
+        self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color='#EA0000', hover_color='#B20000',
+                                                width=175, height=60, corner_radius=0, command=self.goStatisticsPage)
         self.bt_stats.grid(row=3, column=0, pady=30)
 
-        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color='#EA0000',hover_color='#B20000', width=175, height=60, corner_radius=0,)
+        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color='#EA0000', hover_color='#B20000',
+                                                  width=175, height=60, corner_radius=0, command=self.goOptionsPage)
         self.bt_options.grid(row=4, column=0, pady=30)
 
-        self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color='#EA0000',hover_color='#B20000', width=175, height=60, corner_radius=0,)
+        self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color='#EA0000', hover_color='#B20000',
+                                                  width=175, height=60, corner_radius=0, command=self.goAccountPage)
         self.bt_account.grid(row=5, column=0, pady=30)
 
     def clear_frame(self):
         for widget in self.main_container.winfo_children():
             widget.destroy()
 
-    def inventoryPage(self):
-        print("ok")
+    def goInventoryPage(self):
+        print("inventory")
         self.clear_frame()
-        self.bt_from_frame1 = customtkinter.CTkButton(self.main_container, text="dash",command=lambda: print("test dash"))
-        self.bt_from_frame1.grid(row=0, column=0, padx=20, pady=(10, 0))
+        self.label = CTkLabel(self.main_container, text="Inventory", text_color="white", font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
-        self.bt_from_frame2 = customtkinter.CTkButton(self.main_container, text="dash 1",command=lambda: print("test dash 1"))
-        self.bt_from_frame2.grid(row=1, column=0, padx=20, pady=(10, 0))
-
-    def dash(self):
-        print("ok")
+    def goReportPage(self):
+        print("report")
         self.clear_frame()
-        self.bt_from_frame1 = customtkinter.CTkButton(self.main_container, text="dash", command=lambda: print("test dash"))
-        self.bt_from_frame1.grid(row=0, column=0, padx=20, pady=(10, 0))
-        self.bt_from_frame2 = customtkinter.CTkButton(self.main_container, text="dash 1",
-                                                      command=lambda: print("test dash 1"))
-        self.bt_from_frame2.grid(row=1, column=0, padx=20, pady=(10, 0))
+        self.label = CTkLabel(self.main_container, text="Report", text_color="white", font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
-
-    #  self.right_dashboard   ----> statement widget
-    def statement(self):
-        print("ok")
+    def goStatisticsPage(self):
+        print("stats")
         self.clear_frame()
-        self.bt_from_frame3 = customtkinter.CTkButton(self.main_container, text="statement",
-                                                      command=lambda: print("test statement"))
-        self.bt_from_frame3.grid(row=0, column=0, padx=20, pady=(10, 0))
+        self.label = CTkLabel(self.main_container, text="Statistics", text_color="white", font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
+    def goOptionsPage(self):
+        print("options")
+        self.clear_frame()
+        self.label = CTkLabel(self.main_container, text="Settings", text_color="white", font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+
+    def goAccountPage(self):
+        print("account")
+        self.clear_frame()
+        self.label = CTkLabel(self.main_container, text="Account Details", text_color="white", font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
 
 class SignIn(customtkinter.CTkToplevel):
@@ -154,8 +161,8 @@ class SignIn(customtkinter.CTkToplevel):
 
                         return
 
-                    else:
-                        self.labelsign.configure(text="Username and or password is incorrect", text_color="red")
+                # If no match is found after checking all records
+                self.labelsign.configure(text="Username and or password is incorrect", text_color="red")
 
         def regHandler():
             clearEntries()
@@ -163,12 +170,18 @@ class SignIn(customtkinter.CTkToplevel):
             registerWindow = Registry(SignInWindow)
             registerWindow.mainloop()
 
+        def enterDetails(event=None):
+            if self.userEntry.get() and self.passwordEntry.get():
+                logHandler()
+            else:
+                self.labelsign.configure(text="Please enter both username and password", text_color="red")
+
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
         self.frame.grid()
 
         self.logo1 = customtkinter.CTkImage(dark_image=Image.open('Inventrackreal.png'), size=(380, 200))
         self.logoLabel = CTkLabel(self.frame, image=self.logo1, text="", width=1, height=1)
-        self.logoLabel.grid(column=1, row=1, padx=(200, 210), pady=(0, 0), columnspan=4)
+        self.logoLabel.grid(column=1, row=1, padx=(180, 200), pady=(0, 0), columnspan=4)
 
         self.userEntry = CTkEntry(self.frame, placeholder_text="Username", height=30, width=280)
         self.userEntry.grid(column=1, row=3, columnspan=4, pady=(0, 10))
@@ -188,6 +201,12 @@ class SignIn(customtkinter.CTkToplevel):
 
         self.btn = CTkButton(self.frame, text="Register", command=regHandler)
         self.btn.grid(column=2, row=7, columnspan=4, pady=(5, 20), padx=(50, 50))
+
+        # Binding the enter key to the function
+        self.userEntry.bind('<Return>', enterDetails)
+        self.passwordEntry.bind('<Return>', enterDetails)
+
+
 
 
 class Registry(customtkinter.CTkToplevel):
@@ -314,7 +333,6 @@ class Registry(customtkinter.CTkToplevel):
 
         self.btn = CTkButton(self.frame, text="Login", command=regBack)
         self.btn.grid(column=1, row=9, padx=(250, 250), pady=(0, 50), columnspan=2)
-
 
 
 app = MainPage()
