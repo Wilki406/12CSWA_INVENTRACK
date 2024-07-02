@@ -1,18 +1,20 @@
 from customtkinter import *
 import customtkinter
 import csv
-import tkinter
 from PIL import Image
-import json
 
 data = 'dataforsat.csv'
-records = []
-idRank = []
-usernameLists = []
 headers = ["ID","username","password","firstName","lastName"]
 
+
+
 # Load data function
-def loadData():
+def loadData(data):
+
+    records = []
+    idRank = []
+    usernameLists = []
+
     with open(data, 'r') as file:
         reader = csv.reader(file)
         next(reader)
@@ -30,14 +32,13 @@ def loadData():
 
     return records, usernameLists, idRank
 
-records, usernameLists, idRank = loadData()
+records, usernameLists, idRank = loadData(data)
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("Inventory Tracker")
         self.geometry("100x100".format(self.winfo_screenwidth(), self.winfo_screenheight()))
-
         self.resizable(width=True, height=True)
         self.wm_iconbitmap('invenico.ico')  # Set icon for MainPage
 
@@ -54,29 +55,35 @@ class MainPage(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=300, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky='nsew')
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
-        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color="#33F2FF", font=('Berlin Sans FB', 28))
+
+        buttonColour = "#A6A6A6"
+
+        ### Side bar widgets
+        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color='#00FFE3', font=('Berlin Sans FB', 28))
         self.titletext.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # sidebar tab buttons
-        self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color='#EA0000', hover_color='#B20000',
+        self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color=buttonColour, hover_color='#B20000',
                                                 width=175, height=60, corner_radius=0, command=self.goInventoryPage)
         self.bt_inven.grid(row=1, column=0, pady=30)
 
-        self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color='#EA0000', hover_color='#B20000',
+        self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color=buttonColour, hover_color='#B20000',
                                                  width=175, height=60, corner_radius=0, command=self.goReportPage)
         self.bt_report.grid(row=2, column=0, pady=30)
 
-        self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color='#EA0000', hover_color='#B20000',
+        self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color=buttonColour, hover_color='#B20000',
                                                 width=175, height=60, corner_radius=0, command=self.goStatisticsPage)
         self.bt_stats.grid(row=3, column=0, pady=30)
 
-        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color='#EA0000', hover_color='#B20000',
+        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color=buttonColour, hover_color='#B20000',
                                                   width=175, height=60, corner_radius=0, command=self.goOptionsPage)
         self.bt_options.grid(row=4, column=0, pady=30)
 
-        self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color='#EA0000', hover_color='#B20000',
+        self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color=buttonColour, hover_color='#B20000',
                                                   width=175, height=60, corner_radius=0, command=self.goAccountPage)
         self.bt_account.grid(row=5, column=0, pady=30)
+
+        self.goInventoryPage()
 
     def clear_frame(self):
         for widget in self.main_container.winfo_children():
@@ -85,32 +92,48 @@ class MainPage(customtkinter.CTk):
     def goInventoryPage(self):
         print("inventory")
         self.clear_frame()
+        # Header
         self.label = CTkLabel(self.main_container, text="Inventory", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def goReportPage(self):
         print("report")
         self.clear_frame()
+        # Header
         self.label = CTkLabel(self.main_container, text="Report", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def goStatisticsPage(self):
         print("stats")
         self.clear_frame()
+        # Header
         self.label = CTkLabel(self.main_container, text="Statistics", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def goOptionsPage(self):
         print("options")
         self.clear_frame()
+        # Header
         self.label = CTkLabel(self.main_container, text="Settings", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+
+
 
     def goAccountPage(self):
         print("account")
         self.clear_frame()
+
+
+        self.account_container = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.account_container.grid(column=1, row=2, rowspan=3, padx=(10, 10), pady=(10, 10), sticky=('nsew'))
+
+        # Header
         self.label = CTkLabel(self.main_container, text="Account Details", text_color="white", font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+        self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=1)
+
+        # Widgets
+        self.userlabel = CTkLabel(self.account_container, text="test", text_color="white", font=('Berlin Sans FB', 15))
+        self.userlabel.grid(column=1, row=1,)
 
 
 class SignIn(customtkinter.CTkToplevel):
@@ -123,7 +146,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.wm_iconbitmap('invenico.ico')  # Set icon for SignIn window
 
         global userLogged
-        userLogged = 0
+        userLogged = ""
         showstate = "*"
 
         def hidHandler():
@@ -152,7 +175,7 @@ class SignIn(customtkinter.CTkToplevel):
                     if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
                         fName = row[3]
                         lName = row[4]
-                        userLogged = row[0]
+                        userLogged = row[1]
                         print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
                         self.withdraw()
@@ -219,7 +242,7 @@ class Registry(customtkinter.CTkToplevel):
         self.frame.grid()
 
         def regBack():
-            records, usernameLists, idRank = loadData()
+            records, usernameLists, idRank = loadData(data)
             self.withdraw()
             self.sign_in_window.deiconify()
 
@@ -254,6 +277,7 @@ class Registry(customtkinter.CTkToplevel):
                 firstn = ""
                 lastnfirst = ""
                 lastntwo = ""
+                lastn = ""
 
                 if checkSpace(self.nameEntry.get()) == 0:
                     self.labelsign.configure(text="Enter last name", text_color="red")
@@ -261,10 +285,10 @@ class Registry(customtkinter.CTkToplevel):
 
                 elif checkSpace(self.nameEntry.get()) == 2:
                     [firstn, lastnfirst, lastntwo] = fullname.split(' ')
-                    lastname = lastnfirst + " " + lastntwo
+                    lastn = lastnfirst + " " + lastntwo
                 elif checkSpace(self.nameEntry.get()) == 1:
                     [firstn, lastnfirst] = fullname.split(' ')
-                    lastname = lastnfirst
+                    lastn = lastnfirst
                 # elif checkSpace(self.nameEntry.get()) == 0:
 
                 if firstPassword == secondPassword:
@@ -275,7 +299,7 @@ class Registry(customtkinter.CTkToplevel):
                         print("username is unique")
                         userDesRank = idRank[-1] + 1
 
-                        newlist = [userDesRank, username, firstPassword, firstn, lastname]
+                        newlist = [userDesRank, username, firstPassword, firstn, lastn]
 
                         with open(data, 'w', newline='') as file:
                             writer = csv.writer(file)
