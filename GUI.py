@@ -4,7 +4,7 @@ import csv
 from PIL import Image
 
 data = 'dataforsat.csv'
-headers = ["ID","username","password","firstName","lastName"]
+headers = ["ID", "username", "password", "firstName", "lastName"]
 
 # Load data function
 def loadData(data):
@@ -43,8 +43,10 @@ class MainPage(customtkinter.CTk):
 
         global buttonColour
         global buttonHoverColour
-        buttonColour = "#A6A6A6"
-        buttonHoverColour = "#454545"
+        global buttonSelectedColour
+        buttonColour = "#949494"
+        buttonHoverColour = "#6e6e6e"
+        buttonSelectedColour = "#4d4d4d"
 
         self.sidebar_buttons = []
 
@@ -62,6 +64,10 @@ class MainPage(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=300, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky='nsew')
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
+
+        ### Side bar widgets
+        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color='#00FFE3', font=('Berlin Sans FB', 28))
+        self.titletext.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # Create sidebar buttons (keep the existing code)
         self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color=buttonColour,
@@ -94,15 +100,16 @@ class MainPage(customtkinter.CTk):
         self.bt_account.grid(row=5, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_account)
 
-        # Set the initial active button
-        self.set_active_button(self.bt_inven)
 
+        # make the inventory page the landing page
         self.goInventoryPage()
+        self.set_active_button(self.bt_inven)  # Set the initial active button
 
     def set_active_button(self, active_button):
         for button in self.sidebar_buttons:
             if button == active_button:
-                button.configure(fg_color=buttonHoverColour)
+                button.configure(fg_color="#006b5f")
+                button.configure(hover_color="#006b5f")
             else:
                 button.configure(fg_color=buttonColour)
 
