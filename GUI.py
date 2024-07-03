@@ -6,8 +6,6 @@ from PIL import Image
 data = 'dataforsat.csv'
 headers = ["ID","username","password","firstName","lastName"]
 
-
-
 # Load data function
 def loadData(data):
 
@@ -37,10 +35,19 @@ records, usernameLists, idRank = loadData(data)
 class MainPage(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Inventory Tracker")
-        self.geometry("100x100".format(self.winfo_screenwidth(), self.winfo_screenheight()))
+        self.title("InvenTracker")
+        self.geometry("500x500".format(self.winfo_screenwidth(), self.winfo_screenheight()))
         self.resizable(width=True, height=True)
         self.wm_iconbitmap('invenico.ico')  # Set icon for MainPage
+
+
+        global buttonColour
+        global buttonHoverColour
+        buttonColour = "#A6A6A6"
+        buttonHoverColour = "#454545"
+
+        self.sidebar_buttons = []
+
 
         # main frame
         self.main_container = customtkinter.CTkFrame(self, corner_radius=10)
@@ -56,84 +63,109 @@ class MainPage(customtkinter.CTk):
         self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky='nsew')
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
 
-        buttonColour = "#A6A6A6"
-
-        ### Side bar widgets
-        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color='#00FFE3', font=('Berlin Sans FB', 28))
-        self.titletext.grid(row=0, column=0, padx=20, pady=(20, 10))
-
-        # sidebar tab buttons
-        self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color=buttonColour, hover_color='#B20000',
+        # Create sidebar buttons (keep the existing code)
+        self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color=buttonColour,
+                                                hover_color=buttonHoverColour,
                                                 width=175, height=60, corner_radius=0, command=self.goInventoryPage)
         self.bt_inven.grid(row=1, column=0, pady=30)
+        self.sidebar_buttons.append(self.bt_inven)
 
-        self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color=buttonColour, hover_color='#B20000',
+        self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color=buttonColour,
+                                                 hover_color=buttonHoverColour,
                                                  width=175, height=60, corner_radius=0, command=self.goReportPage)
         self.bt_report.grid(row=2, column=0, pady=30)
+        self.sidebar_buttons.append(self.bt_report)
 
-        self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color=buttonColour, hover_color='#B20000',
+        self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color=buttonColour,
+                                                hover_color=buttonHoverColour,
                                                 width=175, height=60, corner_radius=0, command=self.goStatisticsPage)
         self.bt_stats.grid(row=3, column=0, pady=30)
+        self.sidebar_buttons.append(self.bt_stats)
 
-        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color=buttonColour, hover_color='#B20000',
+        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color=buttonColour,
+                                                  hover_color=buttonHoverColour,
                                                   width=175, height=60, corner_radius=0, command=self.goOptionsPage)
         self.bt_options.grid(row=4, column=0, pady=30)
+        self.sidebar_buttons.append(self.bt_options)
 
-        self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color=buttonColour, hover_color='#B20000',
+        self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color=buttonColour,
+                                                  hover_color=buttonHoverColour,
                                                   width=175, height=60, corner_radius=0, command=self.goAccountPage)
         self.bt_account.grid(row=5, column=0, pady=30)
+        self.sidebar_buttons.append(self.bt_account)
+
+        # Set the initial active button
+        self.set_active_button(self.bt_inven)
 
         self.goInventoryPage()
+
+    def set_active_button(self, active_button):
+        for button in self.sidebar_buttons:
+            if button == active_button:
+                button.configure(fg_color=buttonHoverColour)
+            else:
+                button.configure(fg_color=buttonColour)
 
     def clear_frame(self):
         for widget in self.main_container.winfo_children():
             widget.destroy()
 
+
     def goInventoryPage(self):
         print("inventory")
+        self.set_active_button(self.bt_inven)
         self.clear_frame()
         # Header
         self.label = CTkLabel(self.main_container, text="Inventory", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
+
     def goReportPage(self):
         print("report")
+        self.set_active_button(self.bt_report)
         self.clear_frame()
         # Header
         self.label = CTkLabel(self.main_container, text="Report", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
+
     def goStatisticsPage(self):
         print("stats")
+        self.set_active_button(self.bt_stats)
         self.clear_frame()
         # Header
         self.label = CTkLabel(self.main_container, text="Statistics", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
+
     def goOptionsPage(self):
         print("options")
+        self.set_active_button(self.bt_options)
         self.clear_frame()
         # Header
         self.label = CTkLabel(self.main_container, text="Settings", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
-
-
     def goAccountPage(self):
         print("account")
+        self.set_active_button(self.bt_account)
         self.clear_frame()
 
 
+        # Container for Page
         self.account_container = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.account_container.grid(column=1, row=2, rowspan=3, padx=(10, 10), pady=(10, 10), sticky=('nsew'))
+        self.account_container.grid(column=1, row=2, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
 
         # Header
         self.label = CTkLabel(self.main_container, text="Account Details", text_color="white", font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=1)
 
         # Widgets
-        self.userlabel = CTkLabel(self.account_container, text="test", text_color="white", font=('Berlin Sans FB', 15))
-        self.userlabel.grid(column=1, row=1,)
+        self.userlabel = CTkLabel(self.account_container, text="Username: ", text_color="white", font=('Berlin Sans FB', 30))
+        self.userlabel.grid(column=1, row=1, padx=(10, 5))
+
+        self.userlabel2 = CTkLabel(self.account_container, text=userLogged, text_color="white", font=('Berlin Sans FB', 30))
+        self.userlabel2.grid(column=2, row=1, padx=(5, 30))
 
 
 class SignIn(customtkinter.CTkToplevel):
@@ -175,6 +207,7 @@ class SignIn(customtkinter.CTkToplevel):
                     if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
                         fName = row[3]
                         lName = row[4]
+                        global userLogged
                         userLogged = row[1]
                         print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
