@@ -2,13 +2,21 @@ from customtkinter import *
 import customtkinter
 import csv
 from PIL import Image
+import tkinter as tk
+
+#############################################
+# TODO: fix imported from data UIC and SCALE
+#############################################
+
+startingScale = "1"
+startingUIC = "Dark"
 
 data = 'dataforsat.csv'
-headers = ["ID", "username", "password", "firstName", "lastName"]
+headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
+
 
 # Load data function
 def loadData(data):
-
     records = []
     idRank = []
     usernameLists = []
@@ -23,42 +31,48 @@ def loadData(data):
             passwords = row[2]
             firstNames = row[3]
             lastNames = row[4]
+            scales = row[5]
+            UICs = row[6]
 
             idRank.append(int(ids))
             usernameLists.append(usernames)
-            records.append([ids, usernames, passwords, firstNames, lastNames])
+            records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs])
 
     return records, usernameLists, idRank
 
+
 records, usernameLists, idRank = loadData(data)
+
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("InvenTracker")
-        self.geometry("500x500".format(self.winfo_screenwidth(), self.winfo_screenheight()))
+        self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight()))
         self.resizable(width=True, height=True)
         self.wm_iconbitmap('invenico.ico')  # Set icon for MainPage
+
 
 
         global buttonColour
         global buttonHoverColour
         global buttonSelectedColour
+
         buttonColour = "#949494"
         buttonHoverColour = "#6e6e6e"
         buttonSelectedColour = "#4d4d4d"
 
         self.sidebar_buttons = []
 
-
         # main frame
         self.main_container = customtkinter.CTkFrame(self, corner_radius=10)
         self.main_container.grid(column=1, row=0, rowspan=3, padx=(10, 10), pady=(10, 10), sticky=('nsew'))
-        self.main_container.grid_rowconfigure(4, weight=1)
+        self.main_container.grid_rowconfigure(2, weight=1)
 
         # configurations
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.main_container.grid_columnconfigure(1, weight=1)  # Allow row 0 to expand vertically
 
         # sidebar frame
         self.sidebar_frame = customtkinter.CTkFrame(self, width=300, corner_radius=0)
@@ -66,7 +80,8 @@ class MainPage(customtkinter.CTk):
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
 
         ### Side bar widgets
-        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color='#00FFE3', font=('Berlin Sans FB', 28))
+        self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color='#006b5f',
+                                                font=('Berlin Sans FB', 28))
         self.titletext.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # Create sidebar buttons (keep the existing code)
@@ -100,10 +115,8 @@ class MainPage(customtkinter.CTk):
         self.bt_account.grid(row=5, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_account)
 
-
-        # make the inventory page the landing page
-        self.goInventoryPage()
-        self.set_active_button(self.bt_inven)  # Set the initial active button
+        self.goInventoryPage()  # Make the inventory page the landing page
+        self.set_active_button(self.bt_inven)  # Set the initial active button which is inventory
 
     def set_active_button(self, active_button):
         for button in self.sidebar_buttons:
@@ -112,67 +125,157 @@ class MainPage(customtkinter.CTk):
                 button.configure(hover_color="#006b5f")
             else:
                 button.configure(fg_color=buttonColour)
+                button.configure(hover_color=buttonHoverColour)
 
     def clear_frame(self):
         for widget in self.main_container.winfo_children():
             widget.destroy()
+
+    def colourChange(self, new_appearance_mode: str):  # Change in app from input
+        customtkinter.set_appearance_mode(new_appearance_mode.lower())
+        self.update()
+        self.state("zoomed")
+        if new_appearance_mode != startingUIC:
+            for i, row in enumerate(records):
+                if userLogged in row[1]:
+                    records[i][6] = new_appearance_mode.lower()
+
+            with open(data, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                print(headers)
+                writer.writerows(records)
+                print(records)
+
+
+    def startUiColour(self, colour):  # Change at program run from data
+        customtkinter.set_appearance_mode(colour.lower())
+        self.update()
+        self.state("zoomed")
+
+    def change_scaling_event(self, inputedScale: str):  # Change in app from input
+        new_scaling_float = startingScale
+        if new_scaling_float != inputedScale:
+            new_scaling_float = int(inputedScale.replace("%", "")) / 100
+            print(new_scaling_float)
+            customtkinter.set_widget_scaling(new_scaling_float)
+
+            for i, row in enumerate(records):
+                if userLogged in row[1]:
+                    records[i][5] = str(new_scaling_float)
+
+            with open(data, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                print(headers)
+                writer.writerows(records)
+                print(records)
+
+
+    def startUserScale(self, scale):  # Change at program run from data
+        meow = float(scale)
+        meow2 = str(meow * 100)
+        customtkinter.set_widget_scaling(meow)
+        self.scaling_optionemenu.set(f"{meow2}%")
 
 
     def goInventoryPage(self):
         print("inventory")
         self.set_active_button(self.bt_inven)
         self.clear_frame()
-        # Header
-        self.label = CTkLabel(self.main_container, text="Inventory", text_color="white", font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
+        # Header
+        self.label = CTkLabel(self.main_container, text="Inventory", text_color=("black", "White"), font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def goReportPage(self):
         print("report")
         self.set_active_button(self.bt_report)
         self.clear_frame()
         # Header
-        self.label = CTkLabel(self.main_container, text="Report", text_color="white", font=('Berlin Sans FB', 50))
+        self.label = CTkLabel(self.main_container, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
-
 
     def goStatisticsPage(self):
         print("stats")
         self.set_active_button(self.bt_stats)
         self.clear_frame()
         # Header
-        self.label = CTkLabel(self.main_container, text="Statistics", text_color="white", font=('Berlin Sans FB', 50))
+        self.label = CTkLabel(self.main_container, text="Statistics", text_color=("black", "White"), font=('Berlin Sans FB', 50))
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
-
 
     def goOptionsPage(self):
         print("options")
         self.set_active_button(self.bt_options)
         self.clear_frame()
+
+        # Container for Page
+        self.options_container = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.options_container.grid(column=1, row=2, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
+
         # Header
-        self.label = CTkLabel(self.main_container, text="Settings", text_color="white", font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+        self.label = CTkLabel(self.main_container, text="Program Settings", text_color=("black", "White"),
+                              font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
+
+        # Widgets
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
+            self.options_container,
+            values=["Dark", "Light", "System"],
+            command=self.colourChange,
+            fg_color="#006b5f",
+            dropdown_fg_color="#006b5f",
+            button_color="#014f46",
+            button_hover_color="#01362f")
+        self.appearance_mode_optionemenu.set(customtkinter.get_appearance_mode())  # Set the current appearance mode
+        self.appearance_mode_optionemenu.grid(row=1, column=0, padx=20, pady=(10, 10))
+
+        # Calculate meow2 value
+        meow = float(startingScale)
+        meow2 = str(int(meow * 100)) + "%"
+
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_container,
+                                                               values=["80%", "90%", "100%", "110%", "120%"],
+                                                               command=self.change_scaling_event,
+                                                               fg_color="#006b5f",
+                                                               dropdown_fg_color="#006b5f",
+                                                               button_color="#014f46",
+                                                               button_hover_color="#01362f")
+        self.scaling_optionemenu.grid(row=2, column=0, padx=20, pady=(10, 20))
+
+        # Set the scale option widget to meow2
+        self.scaling_optionemenu.set(meow2)
 
     def goAccountPage(self):
         print("account")
         self.set_active_button(self.bt_account)
         self.clear_frame()
 
-
         # Container for Page
         self.account_container = customtkinter.CTkFrame(self.main_container, corner_radius=10)
         self.account_container.grid(column=1, row=2, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
 
         # Header
-        self.label = CTkLabel(self.main_container, text="Account Details", text_color="white", font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=1)
+        self.label = CTkLabel(self.main_container, text="Account Details", text_color=("black", "White"),
+                              font=('Berlin Sans FB', 50))
+        self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
 
         # Widgets
-        self.userlabel = CTkLabel(self.account_container, text="Username: ", text_color="white", font=('Berlin Sans FB', 30))
-        self.userlabel.grid(column=1, row=1, padx=(10, 5))
+        self.userlabel = CTkLabel(self.account_container, text="Username: ", text_color=("black", "White"),
+                                  font=('Berlin Sans FB', 60))
+        self.userlabel.grid(column=1, row=1, sticky="w", padx=(10, 5))
 
-        self.userlabel2 = CTkLabel(self.account_container, text=userLogged, text_color="white", font=('Berlin Sans FB', 30))
-        self.userlabel2.grid(column=2, row=1, padx=(5, 30))
+        self.userlabel2 = CTkLabel(self.account_container, text=userLogged, text_color="#006b5f",
+                                   font=('Berlin Sans FB', 60))
+        self.userlabel2.grid(column=2, row=1, sticky="w")
+
+        self.namelabel = CTkLabel(self.account_container, text="Fullname: ", text_color=("black", "White"),
+                                  font=('Berlin Sans FB', 60))
+        self.namelabel.grid(column=1, row=2, sticky="w", padx=(10, 5))
+
+        self.namelabel2 = CTkLabel(self.account_container, text=userFullname, text_color="#006b5f",
+                                   font=('Berlin Sans FB', 60))
+        self.namelabel2.grid(column=2, row=2, sticky="w")
 
 
 class SignIn(customtkinter.CTkToplevel):
@@ -214,14 +317,22 @@ class SignIn(customtkinter.CTkToplevel):
                     if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
                         fName = row[3]
                         lName = row[4]
+                        global userFullname
+                        userFullname = (f"{fName} {lName}")
                         global userLogged
                         userLogged = row[1]
+                        global startingScale
+                        startingScale = row[5]
+                        global startingUIC
+                        startingUIC = row[6]
+                        print(startingUIC)
                         print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
                         self.withdraw()
                         self.app.deiconify()
-                        self.app.state("zoomed")
-
+                        self.app.state("zoomed")  # Zoom in
+                        self.app.startUserScale(startingScale)  # Factor in scale
+                        self.app.colourChange(startingUIC)
                         return
 
                 # If no match is found after checking all records
@@ -270,8 +381,6 @@ class SignIn(customtkinter.CTkToplevel):
         self.passwordEntry.bind('<Return>', enterDetails)
 
 
-
-
 class Registry(customtkinter.CTkToplevel):
     def __init__(self, sign_in_window):
         super().__init__()
@@ -315,12 +424,11 @@ class Registry(customtkinter.CTkToplevel):
                 secondPassword = self.rePasswordEntry.get()
 
                 firstn = ""
-                lastnfirst = ""
-                lastntwo = ""
                 lastn = ""
 
                 if checkSpace(self.nameEntry.get()) == 0:
                     self.labelsign.configure(text="Enter last name", text_color="red")
+                    self.nameEntry.configure(border_color="red")
                     return
 
                 elif checkSpace(self.nameEntry.get()) == 2:
@@ -338,8 +446,9 @@ class Registry(customtkinter.CTkToplevel):
 
                         print("username is unique")
                         userDesRank = idRank[-1] + 1
-
-                        newlist = [userDesRank, username, firstPassword, firstn, lastn]
+                        scaleF = 100
+                        uiC = "dark"
+                        newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC]
 
                         with open(data, 'w', newline='') as file:
                             writer = csv.writer(file)
