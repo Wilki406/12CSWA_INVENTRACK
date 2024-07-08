@@ -50,7 +50,7 @@ class MainPage(customtkinter.CTk):
         self.title("InvenTracker")
         self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight()))
         self.resizable(width=True, height=True)
-        self.wm_iconbitmap('invenico.ico')  # Set icon for MainPage
+        self.wm_iconbitmap('Images/invenico.ico')  # Set icon for MainPage
 
 
 
@@ -137,7 +137,7 @@ class MainPage(customtkinter.CTk):
         self.state("zoomed")
         if new_appearance_mode != startingUIC:
             for i, row in enumerate(records):
-                if userLogged in row[1]:
+                if userLogged in row[1] and idNum in row[0]:
                     records[i][6] = new_appearance_mode.lower()
 
             with open(data, 'w', newline='') as file:
@@ -156,12 +156,14 @@ class MainPage(customtkinter.CTk):
     def change_scaling_event(self, inputedScale: str):  # Change in app from input
         new_scaling_float = startingScale
         if new_scaling_float != inputedScale:
+            global scaleFUCKOFF
+            scaleFUCKOFF = inputedScale
             new_scaling_float = int(inputedScale.replace("%", "")) / 100
             print(new_scaling_float)
             customtkinter.set_widget_scaling(new_scaling_float)
 
             for i, row in enumerate(records):
-                if userLogged in row[1]:
+                if userLogged in row[1] and idNum in row[0]:
                     records[i][5] = str(new_scaling_float)
 
             with open(data, 'w', newline='') as file:
@@ -171,10 +173,17 @@ class MainPage(customtkinter.CTk):
                 writer.writerows(records)
                 print(records)
 
+                print(f" ################## {scaleFUCKOFF} ##############")
+
+                return scaleFUCKOFF
+
 
     def startUserScale(self, scale):  # Change at program run from data
         meow = float(scale)
-        meow2 = str(meow * 100)
+        print(f"{meow} THIS IS MEOW")
+        meow2 = round(meow * 100)
+
+        print(f"{meow2} THIS IS MEOW 2")
         customtkinter.set_widget_scaling(meow)
         self.scaling_optionemenu.set(f"{meow2}%")
 
@@ -205,6 +214,7 @@ class MainPage(customtkinter.CTk):
         self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def goOptionsPage(self):
+
         print("options")
         self.set_active_button(self.bt_options)
         self.clear_frame()
@@ -230,9 +240,9 @@ class MainPage(customtkinter.CTk):
         self.appearance_mode_optionemenu.set(customtkinter.get_appearance_mode())  # Set the current appearance mode
         self.appearance_mode_optionemenu.grid(row=1, column=0, padx=20, pady=(10, 10))
 
-        # Calculate meow2 value
-        meow = float(startingScale)
-        meow2 = str(int(meow * 100)) + "%"
+        # # Calculate meow2 value
+        # meow = float(startingScale)
+        # meow2 = str(int(meow * 100)) + "%"
 
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_container,
                                                                values=["80%", "90%", "100%", "110%", "120%"],
@@ -244,8 +254,7 @@ class MainPage(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=2, column=0, padx=20, pady=(10, 20))
 
         # Set the scale option widget to meow2
-        self.scaling_optionemenu.set(meow2)
-
+        self.scaling_optionemenu.set(scaleFUCKOFF)
     def goAccountPage(self):
         print("account")
         self.set_active_button(self.bt_account)
@@ -285,7 +294,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.title("Inventrack")
         self.geometry("750x420")
         self.resizable(width=False, height=False)
-        self.wm_iconbitmap('invenico.ico')  # Set icon for SignIn window
+        self.wm_iconbitmap('Images/invenico.ico')  # Set icon for SignIn window
 
         global userLogged
         userLogged = ""
@@ -325,6 +334,9 @@ class SignIn(customtkinter.CTkToplevel):
                         startingScale = row[5]
                         global startingUIC
                         startingUIC = row[6]
+
+                        global idNum
+                        idNum = row[0]
                         print(startingUIC)
                         print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
@@ -353,7 +365,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
         self.frame.grid()
 
-        self.logo1 = customtkinter.CTkImage(dark_image=Image.open('Inventrackreal.png'), size=(380, 200))
+        self.logo1 = customtkinter.CTkImage(dark_image=Image.open('Images/Inventrackreal.png'), size=(380, 200))
         self.logoLabel = CTkLabel(self.frame, image=self.logo1, text="", width=1, height=1)
         self.logoLabel.grid(column=1, row=1, padx=(180, 200), pady=(0, 0), columnspan=4)
 
@@ -386,7 +398,7 @@ class Registry(customtkinter.CTkToplevel):
         super().__init__()
         logFeedback = ""
         self.sign_in_window = sign_in_window
-        self.sign_in_window.wm_iconbitmap('invenico.ico')  # Set icon for SignIn window
+        self.sign_in_window.wm_iconbitmap('Images/invenico.ico')  # Set icon for SignIn window
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
         self.frame.grid()
 
