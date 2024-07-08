@@ -3,9 +3,10 @@ import customtkinter
 import csv
 from PIL import Image
 import tkinter as tk
+import CTkTable
 
 #############################################
-# TODO: fix imported from data UIC and SCALE
+# TODO: SCALE IS STILL WEIRD WHEN GO BACK AND FORTH DOESNT SAVE AND REVERTS TO PREVIOUS
 #############################################
 
 startingScale = "1"
@@ -13,7 +14,6 @@ startingUIC = "Dark"
 
 data = 'dataforsat.csv'
 headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
-
 
 # Load data function
 def loadData(data):
@@ -40,9 +40,7 @@ def loadData(data):
 
     return records, usernameLists, idRank
 
-
 records, usernameLists, idRank = loadData(data)
-
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
@@ -51,8 +49,7 @@ class MainPage(customtkinter.CTk):
         self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight()))
         self.resizable(width=True, height=True)
         self.wm_iconbitmap('Images/invenico.ico')  # Set icon for MainPage
-
-
+        self.current_page = None
 
         global buttonColour
         global buttonHoverColour
@@ -68,6 +65,20 @@ class MainPage(customtkinter.CTk):
         self.main_container = customtkinter.CTkFrame(self, corner_radius=10)
         self.main_container.grid(column=1, row=0, rowspan=3, padx=(10, 10), pady=(10, 10), sticky=('nsew'))
         self.main_container.grid_rowconfigure(2, weight=1)
+
+        # Create frames for each page
+        self.inventory_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.report_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.statistics_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.options_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.account_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+
+        # Initialize content for each frame
+        self.init_inventory_page()
+        self.init_report_page()
+        self.init_statistics_page()
+        self.init_options_page()
+        self.init_account_page()
 
         # configurations
         self.grid_columnconfigure(1, weight=1)
@@ -118,6 +129,112 @@ class MainPage(customtkinter.CTk):
         self.goInventoryPage()  # Make the inventory page the landing page
         self.set_active_button(self.bt_inven)  # Set the initial active button which is inventory
 
+    def init_inventory_page(self):
+        label = CTkLabel(self.inventory_frame, text="Inventory", text_color=("black", "White"),
+                         font=('Berlin Sans FB', 50))
+        label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+
+    def init_report_page(self):
+        label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 50))
+        label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+
+    def init_statistics_page(self):
+        label = CTkLabel(self.statistics_frame, text="Statistics", text_color=("black", "White"),
+                         font=('Berlin Sans FB', 50))
+        label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+
+    def init_options_page(self):
+        label = CTkLabel(self.options_frame, text="Program Settings", text_color=("black", "White"),
+                         font=('Berlin Sans FB', 50))
+        label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
+
+        # Add the rest of the options page widgets here
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
+            self.options_frame,
+            values=["Dark", "Light", "System"],
+            command=self.colourChange,
+            fg_color="#006b5f",
+            dropdown_fg_color="#006b5f",
+            button_color="#014f46",
+            button_hover_color="#01362f")
+        self.appearance_mode_optionemenu.grid(row=2, column=0, padx=20, pady=(10, 10))
+
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_frame,
+                                                               values=["80%", "90%", "100%", "110%", "120%"],
+                                                               command=self.change_scaling_event,
+                                                               fg_color="#006b5f",
+                                                               dropdown_fg_color="#006b5f",
+                                                               button_color="#014f46",
+                                                               button_hover_color="#01362f")
+        self.scaling_optionemenu.grid(row=3, column=0, padx=20, pady=(10, 20))
+
+    def init_account_page(self):
+        label = CTkLabel(self.account_frame, text="Account Details", text_color=("black", "White"),
+                         font=('Berlin Sans FB', 50))
+        label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
+
+        self.userlabel = CTkLabel(self.account_frame, text="Username: ", text_color=("black", "White"),
+                                  font=('Berlin Sans FB', 60))
+        self.userlabel.grid(column=1, row=2, sticky="w", padx=(10, 5))
+
+        self.userlabel2 = CTkLabel(self.account_frame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
+        self.userlabel2.grid(column=2, row=2, sticky="w")
+
+        self.namelabel = CTkLabel(self.account_frame, text="Fullname: ", text_color=("black", "White"),
+                                  font=('Berlin Sans FB', 60))
+        self.namelabel.grid(column=1, row=3, sticky="w", padx=(10, 5))
+
+        self.namelabel2 = CTkLabel(self.account_frame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
+        self.namelabel2.grid(column=2, row=3, sticky="w")
+
+    def show_frame(self, frame):
+        for f in [self.inventory_frame, self.report_frame, self.statistics_frame, self.options_frame,
+                  self.account_frame]:
+            f.grid_remove()
+        frame.grid(column=1, row=0, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
+        self.current_page = frame
+
+    def goInventoryPage(self):
+        self.set_active_button(self.bt_inven)
+        self.show_frame(self.inventory_frame)
+        self.current_page = self.inventory_frame
+
+    def goReportPage(self):
+        self.set_active_button(self.bt_report)
+        self.show_frame(self.report_frame)
+        self.current_page = self.report_frame
+
+    def goStatisticsPage(self):
+        self.set_active_button(self.bt_stats)
+        self.show_frame(self.statistics_frame)
+        self.current_page = self.statistics_frame
+
+    def goOptionsPage(self):
+        self.set_active_button(self.bt_options)
+        self.show_frame(self.options_frame)
+        self.current_page = self.options_frame
+
+        # Update the options if needed
+        self.appearance_mode_optionemenu.set(customtkinter.get_appearance_mode())
+
+        # Calculate meow2 value
+        for row in records:
+            if idNum == row[0] and userLogged == row[1]:
+                startingScale = row[5]
+                meow = float(startingScale)
+                meow2 = str(int(meow * 100)) + "%"
+                self.scaling_optionemenu.set(meow2)
+                break
+
+    def goAccountPage(self):
+        self.set_active_button(self.bt_account)
+        self.show_frame(self.account_frame)
+        self.current_page = self.account_frame
+
+        # Update account information if needed
+        self.userlabel2.configure(text=userLogged)
+        self.namelabel2.configure(text=userFullname)
+
     def set_active_button(self, active_button):
         for button in self.sidebar_buttons:
             if button == active_button:
@@ -130,6 +247,8 @@ class MainPage(customtkinter.CTk):
     def clear_frame(self):
         for widget in self.main_container.winfo_children():
             widget.destroy()
+        self.options_container = None
+        self.scaling_optionemenu = None
 
     def colourChange(self, new_appearance_mode: str):  # Change in app from input
         customtkinter.set_appearance_mode(new_appearance_mode.lower())
@@ -147,21 +266,17 @@ class MainPage(customtkinter.CTk):
                 writer.writerows(records)
                 print(records)
 
-
     def startUiColour(self, colour):  # Change at program run from data
         customtkinter.set_appearance_mode(colour.lower())
         self.update()
         self.state("zoomed")
 
-    def change_scaling_event(self, inputedScale: str):  # Change in app from input
-        new_scaling_float = startingScale
-        if new_scaling_float != inputedScale:
-            global scaleFUCKOFF
-            scaleFUCKOFF = inputedScale
+    def change_scaling_event(self, inputedScale: str):
+        try:
             new_scaling_float = int(inputedScale.replace("%", "")) / 100
-            print(new_scaling_float)
             customtkinter.set_widget_scaling(new_scaling_float)
 
+            # Update records and save to file
             for i, row in enumerate(records):
                 if userLogged in row[1] and idNum in row[0]:
                     records[i][5] = str(new_scaling_float)
@@ -169,13 +284,19 @@ class MainPage(customtkinter.CTk):
             with open(data, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(headers)
-                print(headers)
                 writer.writerows(records)
-                print(records)
 
-                print(f" ################## {scaleFUCKOFF} ##############")
+            global scaleFUCKOFF
+            scaleFUCKOFF = inputedScale
+            print(f" ################## {scaleFUCKOFF} ##############")
 
-                return scaleFUCKOFF
+            # Maintain the current page (Options page in this case)
+            self.show_frame(self.current_page)
+
+            return scaleFUCKOFF
+        except Exception as e:
+            print(f"Error in change_scaling_event: {e}")
+            # Optionally, you can add a message to the user here
 
 
     def startUserScale(self, scale):  # Change at program run from data
@@ -185,106 +306,6 @@ class MainPage(customtkinter.CTk):
 
         print(f"{meow2} THIS IS MEOW 2")
         customtkinter.set_widget_scaling(meow)
-        self.scaling_optionemenu.set(f"{meow2}%")
-
-
-    def goInventoryPage(self):
-        print("inventory")
-        self.set_active_button(self.bt_inven)
-        self.clear_frame()
-
-        # Header
-        self.label = CTkLabel(self.main_container, text="Inventory", text_color=("black", "White"), font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
-
-    def goReportPage(self):
-        print("report")
-        self.set_active_button(self.bt_report)
-        self.clear_frame()
-        # Header
-        self.label = CTkLabel(self.main_container, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
-
-    def goStatisticsPage(self):
-        print("stats")
-        self.set_active_button(self.bt_stats)
-        self.clear_frame()
-        # Header
-        self.label = CTkLabel(self.main_container, text="Statistics", text_color=("black", "White"), font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
-
-    def goOptionsPage(self):
-
-        print("options")
-        self.set_active_button(self.bt_options)
-        self.clear_frame()
-
-        # Container for Page
-        self.options_container = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.options_container.grid(column=1, row=2, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
-
-        # Header
-        self.label = CTkLabel(self.main_container, text="Program Settings", text_color=("black", "White"),
-                              font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
-
-        # Widgets
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
-            self.options_container,
-            values=["Dark", "Light", "System"],
-            command=self.colourChange,
-            fg_color="#006b5f",
-            dropdown_fg_color="#006b5f",
-            button_color="#014f46",
-            button_hover_color="#01362f")
-        self.appearance_mode_optionemenu.set(customtkinter.get_appearance_mode())  # Set the current appearance mode
-        self.appearance_mode_optionemenu.grid(row=1, column=0, padx=20, pady=(10, 10))
-
-        # # Calculate meow2 value
-        # meow = float(startingScale)
-        # meow2 = str(int(meow * 100)) + "%"
-
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_container,
-                                                               values=["80%", "90%", "100%", "110%", "120%"],
-                                                               command=self.change_scaling_event,
-                                                               fg_color="#006b5f",
-                                                               dropdown_fg_color="#006b5f",
-                                                               button_color="#014f46",
-                                                               button_hover_color="#01362f")
-        self.scaling_optionemenu.grid(row=2, column=0, padx=20, pady=(10, 20))
-
-        # Set the scale option widget to meow2
-        self.scaling_optionemenu.set(scaleFUCKOFF)
-    def goAccountPage(self):
-        print("account")
-        self.set_active_button(self.bt_account)
-        self.clear_frame()
-
-        # Container for Page
-        self.account_container = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.account_container.grid(column=1, row=2, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
-
-        # Header
-        self.label = CTkLabel(self.main_container, text="Account Details", text_color=("black", "White"),
-                              font=('Berlin Sans FB', 50))
-        self.label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
-
-        # Widgets
-        self.userlabel = CTkLabel(self.account_container, text="Username: ", text_color=("black", "White"),
-                                  font=('Berlin Sans FB', 60))
-        self.userlabel.grid(column=1, row=1, sticky="w", padx=(10, 5))
-
-        self.userlabel2 = CTkLabel(self.account_container, text=userLogged, text_color="#006b5f",
-                                   font=('Berlin Sans FB', 60))
-        self.userlabel2.grid(column=2, row=1, sticky="w")
-
-        self.namelabel = CTkLabel(self.account_container, text="Fullname: ", text_color=("black", "White"),
-                                  font=('Berlin Sans FB', 60))
-        self.namelabel.grid(column=1, row=2, sticky="w", padx=(10, 5))
-
-        self.namelabel2 = CTkLabel(self.account_container, text=userFullname, text_color="#006b5f",
-                                   font=('Berlin Sans FB', 60))
-        self.namelabel2.grid(column=2, row=2, sticky="w")
 
 
 class SignIn(customtkinter.CTkToplevel):
@@ -326,17 +347,22 @@ class SignIn(customtkinter.CTkToplevel):
                     if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
                         fName = row[3]
                         lName = row[4]
+
                         global userFullname
                         userFullname = (f"{fName} {lName}")
+
                         global userLogged
                         userLogged = row[1]
+
                         global startingScale
                         startingScale = row[5]
+
                         global startingUIC
                         startingUIC = row[6]
 
                         global idNum
                         idNum = row[0]
+
                         print(startingUIC)
                         print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
