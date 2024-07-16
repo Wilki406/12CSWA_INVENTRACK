@@ -3,10 +3,11 @@ import customtkinter
 import csv
 from PIL import Image
 import tkinter as tk
-import CTkTable
+from tkinter import ttk
+from CTkTable import CTkTable
 
 #############################################
-# TODO: SCALE IS STILL WEIRD WHEN GO BACK AND FORTH DOESNT SAVE AND REVERTS TO PREVIOUS
+# TODO: encryption, inventory, statistics
 #############################################
 
 startingScale = "1"
@@ -97,31 +98,31 @@ class MainPage(customtkinter.CTk):
 
         # Create sidebar buttons (keep the existing code)
         self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color=buttonColour,
-                                                hover_color=buttonHoverColour,
+                                                hover_color=buttonHoverColour,text_color=("black", "White"),
                                                 width=175, height=60, corner_radius=0, command=self.goInventoryPage)
         self.bt_inven.grid(row=1, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_inven)
 
         self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color=buttonColour,
-                                                 hover_color=buttonHoverColour,
+                                                 hover_color=buttonHoverColour,text_color=("black", "White"),
                                                  width=175, height=60, corner_radius=0, command=self.goReportPage)
         self.bt_report.grid(row=2, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_report)
 
         self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color=buttonColour,
-                                                hover_color=buttonHoverColour,
+                                                hover_color=buttonHoverColour,text_color=("black", "White"),
                                                 width=175, height=60, corner_radius=0, command=self.goStatisticsPage)
         self.bt_stats.grid(row=3, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_stats)
 
         self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color=buttonColour,
-                                                  hover_color=buttonHoverColour,
+                                                  hover_color=buttonHoverColour,text_color=("black", "White"),
                                                   width=175, height=60, corner_radius=0, command=self.goOptionsPage)
         self.bt_options.grid(row=4, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_options)
 
         self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color=buttonColour,
-                                                  hover_color=buttonHoverColour,
+                                                  hover_color=buttonHoverColour,text_color=("black", "White"),
                                                   width=175, height=60, corner_radius=0, command=self.goAccountPage)
         self.bt_account.grid(row=5, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_account)
@@ -130,23 +131,40 @@ class MainPage(customtkinter.CTk):
         self.set_active_button(self.bt_inven)  # Set the initial active button which is inventory
 
     def init_inventory_page(self):
+
         label = CTkLabel(self.inventory_frame, text="Inventory", text_color=("black", "White"),
-                         font=('Berlin Sans FB', 50))
-        label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
+                         font=('Berlin Sans FB', 80))
+        label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
+
+        self.tree = ttk.Treeview(self.inventory_frame,)
+        self.tree.grid(column=0, row=2, padx=(30, 0))
+
+        # Create a Scrollbar
+        self.scrollbar = ttk.Scrollbar(self.inventory_frame, orient="vertical", command=self.tree.yview)
+
+        # Configure the Treeview to use the scrollbar
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
+
+        # Place the scrollbar on the right side of the Treeview
+        self.scrollbar.grid(column=1, row=2, padx=(30, 0))
 
     def init_report_page(self):
-        label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 50))
+        label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 80))
         label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def init_statistics_page(self):
         label = CTkLabel(self.statistics_frame, text="Statistics", text_color=("black", "White"),
-                         font=('Berlin Sans FB', 50))
+                         font=('Berlin Sans FB', 80))
         label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
     def init_options_page(self):
         label = CTkLabel(self.options_frame, text="Program Settings", text_color=("black", "White"),
-                         font=('Berlin Sans FB', 50))
-        label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
+                         font=('Berlin Sans FB', 80))
+        label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25))
+
+        label2 = CTkLabel(self.options_frame, text="UI Colour: ", text_color=("black", "White"),
+                         font=('Berlin Sans FB', 40))
+        label2.grid(column=0, row=2, padx=(30, 30), pady=(25, 25),sticky="w")
 
         # Add the rest of the options page widgets here
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
@@ -157,7 +175,11 @@ class MainPage(customtkinter.CTk):
             dropdown_fg_color="#006b5f",
             button_color="#014f46",
             button_hover_color="#01362f")
-        self.appearance_mode_optionemenu.grid(row=2, column=0, padx=20, pady=(10, 10))
+        self.appearance_mode_optionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20),sticky="w")
+
+        label3 = CTkLabel(self.options_frame, text="UI Scale:", text_color=("black", "White"),
+                         font=('Berlin Sans FB', 40))
+        label3.grid(column=0, row=4, padx=(30, 30), pady=(25, 25),sticky="w")
 
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_frame,
                                                                values=["80%", "90%", "100%", "110%", "120%"],
@@ -166,26 +188,26 @@ class MainPage(customtkinter.CTk):
                                                                dropdown_fg_color="#006b5f",
                                                                button_color="#014f46",
                                                                button_hover_color="#01362f")
-        self.scaling_optionemenu.grid(row=3, column=0, padx=20, pady=(10, 20))
+        self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20),sticky="w")
 
     def init_account_page(self):
         label = CTkLabel(self.account_frame, text="Account Details", text_color=("black", "White"),
-                         font=('Berlin Sans FB', 50))
-        label.grid(column=1, row=1, padx=(30, 30), pady=(25, 25), columnspan=3)
+                                  font=('Berlin Sans FB', 80))
+        label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25), columnspan=1)
 
         self.userlabel = CTkLabel(self.account_frame, text="Username: ", text_color=("black", "White"),
                                   font=('Berlin Sans FB', 60))
-        self.userlabel.grid(column=1, row=2, sticky="w", padx=(10, 5))
+        self.userlabel.grid(column=0, row=2, sticky="w", padx=(30, 5))
 
         self.userlabel2 = CTkLabel(self.account_frame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
-        self.userlabel2.grid(column=2, row=2, sticky="w")
+        self.userlabel2.grid(column=1, row=2, sticky="w")
 
         self.namelabel = CTkLabel(self.account_frame, text="Fullname: ", text_color=("black", "White"),
                                   font=('Berlin Sans FB', 60))
-        self.namelabel.grid(column=1, row=3, sticky="w", padx=(10, 5))
+        self.namelabel.grid(column=0, row=3, sticky="w", padx=(30, 5))
 
         self.namelabel2 = CTkLabel(self.account_frame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
-        self.namelabel2.grid(column=2, row=3, sticky="w")
+        self.namelabel2.grid(column=1, row=3, sticky="w")
 
     def show_frame(self, frame):
         for f in [self.inventory_frame, self.report_frame, self.statistics_frame, self.options_frame,
@@ -195,9 +217,64 @@ class MainPage(customtkinter.CTk):
         self.current_page = frame
 
     def goInventoryPage(self):
+
+        # Add columns to the Treeview
+        self.tree["columns"] = ("Name", "Price", "ID", "Category", "Count")
+
+        # Hide the tree column
+        self.tree['show'] = 'headings'
+
+
+        invenData = [
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+            ["bread", 5.00, 1, "Food", 25],
+            ["milk", 4.50, 2, "Food", 15],
+        ]
+        
         self.set_active_button(self.bt_inven)
         self.show_frame(self.inventory_frame)
         self.current_page = self.inventory_frame
+
+        # Clear previous items in the Treeview
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for col in ("Price", "ID", "Count"):
+            self.tree.column(col, anchor="center")
+
+        # Define column widths
+        self.tree.column("Name", width=150, anchor=tk.W)
+        self.tree.column("Price", width=100, anchor=tk.CENTER)
+        self.tree.column("ID", width=50, anchor=tk.CENTER)
+        self.tree.column("Category", width=100, anchor=tk.W)
+        self.tree.column("Count", width=50, anchor=tk.CENTER)
+
+        # Define column headings
+        self.tree.heading("Name", text="Name", anchor=tk.W)
+        self.tree.heading("Price", text="Price", anchor=tk.CENTER)
+        self.tree.heading("ID", text="ID", anchor=tk.CENTER)
+        self.tree.heading("Category", text="Category", anchor=tk.W)
+        self.tree.heading("Count", text="Count", anchor=tk.CENTER)
+
+        # Add items from records to the Treeview
+        for record in invenData:
+            self.tree.insert("", "end", values=(record[0], record[1], record[2], record[3], record[4]))
+
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
@@ -266,11 +343,6 @@ class MainPage(customtkinter.CTk):
                 writer.writerows(records)
                 print(records)
 
-    def startUiColour(self, colour):  # Change at program run from data
-        customtkinter.set_appearance_mode(colour.lower())
-        self.update()
-        self.state("zoomed")
-
     def change_scaling_event(self, inputedScale: str):
         try:
             new_scaling_float = int(inputedScale.replace("%", "")) / 100
@@ -286,18 +358,14 @@ class MainPage(customtkinter.CTk):
                 writer.writerow(headers)
                 writer.writerows(records)
 
-            global scaleFUCKOFF
-            scaleFUCKOFF = inputedScale
-            print(f" ################## {scaleFUCKOFF} ##############")
-
             # Maintain the current page (Options page in this case)
             self.show_frame(self.current_page)
 
-            return scaleFUCKOFF
+            return
+
         except Exception as e:
             print(f"Error in change_scaling_event: {e}")
             # Optionally, you can add a message to the user here
-
 
     def startUserScale(self, scale):  # Change at program run from data
         meow = float(scale)
@@ -306,7 +374,6 @@ class MainPage(customtkinter.CTk):
 
         print(f"{meow2} THIS IS MEOW 2")
         customtkinter.set_widget_scaling(meow)
-
 
 class SignIn(customtkinter.CTkToplevel):
     def __init__(self, signApp):
