@@ -4,7 +4,8 @@ import csv
 from PIL import Image
 import tkinter as tk
 from tkinter import ttk
-from CTkTable import CTkTable
+import tkinter.font as tkFont
+from ttkthemes import ThemedStyle
 
 #############################################
 # TODO: encryption, inventory, statistics
@@ -127,17 +128,59 @@ class MainPage(customtkinter.CTk):
         self.bt_account.grid(row=5, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_account)
 
-        self.goInventoryPage()  # Make the inventory page the landing page
         self.set_active_button(self.bt_inven)  # Set the initial active button which is inventory
 
-    def init_inventory_page(self):
+    def configureTreeview(self):
+        # Add columns to the Treeview
+        self.tree["columns"] = ("Name", "Price", "ID", "Category", "Count")
+        # Hide the tree column
+        self.tree['show'] = 'headings'
 
+        for col in ("Price", "ID", "Count"):
+            self.tree.column(col, anchor="center")
+
+        # Define column widths
+        self.tree.column("Name", width=150, anchor=tk.W)
+        self.tree.column("Price", width=100, anchor=tk.CENTER)
+        self.tree.column("ID", width=50, anchor=tk.CENTER)
+        self.tree.column("Category", width=100, anchor=tk.W)
+        self.tree.column("Count", width=50, anchor=tk.CENTER)
+
+        # Define column headings
+        self.tree.heading("Name", text="Name", anchor=tk.W)
+        self.tree.heading("Price", text="Price", anchor=tk.CENTER)
+        self.tree.heading("ID", text="ID", anchor=tk.CENTER)
+        self.tree.heading("Category", text="Category", anchor=tk.W)
+        self.tree.heading("Count", text="Count", anchor=tk.CENTER)
+
+        # Create a ThemedStyle
+        style = ThemedStyle(self)
+
+        # Set the theme
+        style.set_theme("equilux")
+
+        # Configure the Treeview colors
+        style.configure("Treeview",
+                        background="#2a2d2e",
+                        foreground="white",
+                        fieldbackground="#2a2d2e")
+        style.map('Treeview', background=[('selected', '#22559b')])
+
+        headerFont = tkFont.Font(family="Arial", size=14, weight="bold")
+        entryFont = tkFont.Font(family="Helvetica", size=2)
+
+        style.configure("Treeview.Heading", font=headerFont)
+        style.configure("Treeview", font=entryFont)
+        style.configure('Treeview', rowheight=35)
+
+
+    def init_inventory_page(self):
         label = CTkLabel(self.inventory_frame, text="Inventory", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
 
-        self.tree = ttk.Treeview(self.inventory_frame,)
-        self.tree.grid(column=0, row=2, padx=(30, 0))
+        self.tree = ttk.Treeview(self.inventory_frame, height=25)
+        self.tree.grid(column=0, row=2, padx=(30, 130), pady=(0, 385), sticky='nsew')
 
         # Create a Scrollbar
         self.scrollbar = ttk.Scrollbar(self.inventory_frame, orient="vertical", command=self.tree.yview)
@@ -145,8 +188,17 @@ class MainPage(customtkinter.CTk):
         # Configure the Treeview to use the scrollbar
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
+
         # Place the scrollbar on the right side of the Treeview
         self.scrollbar.grid(column=1, row=2, padx=(30, 0))
+
+        # configurations to the columns and rows
+        # this makes the treeview expand to the right
+        self.inventory_frame.grid_columnconfigure(0, weight=1)
+        self.inventory_frame.grid_rowconfigure(2, weight=1)
+
+        # Configure the Treeview
+        self.configureTreeview()
 
     def init_report_page(self):
         label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 80))
@@ -217,35 +269,6 @@ class MainPage(customtkinter.CTk):
         self.current_page = frame
 
     def goInventoryPage(self):
-
-        # Add columns to the Treeview
-        self.tree["columns"] = ("Name", "Price", "ID", "Category", "Count")
-
-        # Hide the tree column
-        self.tree['show'] = 'headings'
-
-
-        invenData = [
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-            ["bread", 5.00, 1, "Food", 25],
-            ["milk", 4.50, 2, "Food", 15],
-        ]
-        
         self.set_active_button(self.bt_inven)
         self.show_frame(self.inventory_frame)
         self.current_page = self.inventory_frame
@@ -254,27 +277,26 @@ class MainPage(customtkinter.CTk):
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        for col in ("Price", "ID", "Count"):
-            self.tree.column(col, anchor="center")
+        idata = (f'{userLogged}_Inventory.csv')
+        invenData = []
+        print(idata)
 
-        # Define column widths
-        self.tree.column("Name", width=150, anchor=tk.W)
-        self.tree.column("Price", width=100, anchor=tk.CENTER)
-        self.tree.column("ID", width=50, anchor=tk.CENTER)
-        self.tree.column("Category", width=100, anchor=tk.W)
-        self.tree.column("Count", width=50, anchor=tk.CENTER)
+        with open(idata, 'r') as file:
+            reader = csv.reader(file)
+            next(reader)  # skip header
 
-        # Define column headings
-        self.tree.heading("Name", text="Name", anchor=tk.W)
-        self.tree.heading("Price", text="Price", anchor=tk.CENTER)
-        self.tree.heading("ID", text="ID", anchor=tk.CENTER)
-        self.tree.heading("Category", text="Category", anchor=tk.W)
-        self.tree.heading("Count", text="Count", anchor=tk.CENTER)
+            for row in reader:
+                inames = row[0]
+                iprice = row[1]
+                iid = row[2]
+                icategory = row[3]
+                icount = row[4]
+
+                invenData.append([inames, iprice, iid, icategory, icount])
 
         # Add items from records to the Treeview
         for record in invenData:
             self.tree.insert("", "end", values=(record[0], record[1], record[2], record[3], record[4]))
-
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
@@ -438,6 +460,7 @@ class SignIn(customtkinter.CTkToplevel):
                         self.app.state("zoomed")  # Zoom in
                         self.app.startUserScale(startingScale)  # Factor in scale
                         self.app.colourChange(startingUIC)
+                        self.app.goInventoryPage()  # Make the inventory page the landing page
                         return
 
                 # If no match is found after checking all records
