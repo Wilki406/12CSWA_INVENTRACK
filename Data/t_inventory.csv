@@ -1,0 +1,41 @@
+Name, Price, ID, Category, Count
+Pizza,10.99,1,Food,25
+Burger,8.49,2,Food,15
+Salad,6.99,3,Food,10
+Sushi,12.95,4,Food,20
+Pasta,9.99,5,Food,18
+Steak,15.75,6,Food,30
+Sandwich,7.25,7,Food,12
+Tacos,10.50,8,Food,22
+Chicken Wings,8.99,9,Food,16
+Ice Cream,4.50,10,Food,8
+Hot Dog,5.25,11,Food,14
+Fish & Chips,11.99,12,Food,28
+Soup,4.95,13,Food,9
+Ramen,9.50,14,Food,17
+Caesar Salad,8.25,15,Food,11
+BBQ Ribs,16.99,16,Food,32
+Pho,10.25,17,Food,21
+Pancakes,6.75,18,Food,13
+Waffles,7.50,19,Food,16
+French Fries,3.99,20,Food,7
+Onion Rings,4.75,21,Food,10
+Nachos,9.25,22,Food,18
+Fried Chicken,12.50,23,Food,23
+Burrito,8.75,24,Food,15
+Cheeseburger,9.75,25,Food,19
+Bagel,3.50,26,Food,6
+Donut,2.99,27,Food,5
+Muffin,2.25,28,Food,4
+Croissant,3.25,29,Food,7
+Cupcake,3.75,30,Food,8
+Fruit Salad,5.99,31,Food,12
+Smoothie,6.50,32,Food,14
+Yogurt Parfait,4.25,33,Food,9
+Chili,7.99,34,Food,17
+Lobster Roll,18.95,35,Food,34
+Cobb Salad,10.75,36,Food,20
+Club Sandwich,9.25,37,Food,18
+Gyro,8.49,38,Food,15
+Falafel Wrap,7.95,39,Food,14
+Macaroni,6.99,40,Food,11
