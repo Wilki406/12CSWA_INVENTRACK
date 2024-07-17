@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
 from ttkthemes import ThemedStyle
+import os
 
 #############################################
 # TODO: encryption, inventory, statistics
@@ -16,6 +17,7 @@ startingUIC = "Dark"
 
 data = 'dataforsat.csv'
 headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
+invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
 # Load data function
 def loadData(data):
@@ -136,6 +138,8 @@ class MainPage(customtkinter.CTk):
         # Hide the tree column
         self.tree['show'] = 'headings'
 
+        self.tree.update_idletasks()
+
         for col in ("Price", "ID", "Count"):
             self.tree.column(col, anchor="center")
 
@@ -180,22 +184,13 @@ class MainPage(customtkinter.CTk):
         label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
 
         self.tree = ttk.Treeview(self.inventory_frame, height=25)
-        self.tree.grid(column=0, row=2, padx=(30, 130), pady=(0, 385), sticky='nsew')
+        self.tree.grid(column=0, row=2, padx=(45, 45), pady=(0, 425), sticky='nsew')
 
-        # Create a Scrollbar
-        self.scrollbar = ttk.Scrollbar(self.inventory_frame, orient="vertical", command=self.tree.yview)
-
-        # Configure the Treeview to use the scrollbar
-        self.tree.configure(yscrollcommand=self.scrollbar.set)
-
-
-        # Place the scrollbar on the right side of the Treeview
-        self.scrollbar.grid(column=1, row=2, padx=(30, 0))
 
         # configurations to the columns and rows
         # this makes the treeview expand to the right
-        self.inventory_frame.grid_columnconfigure(0, weight=1)
         self.inventory_frame.grid_rowconfigure(2, weight=1)
+        self.inventory_frame.grid_columnconfigure(0, weight=1)
 
         # Configure the Treeview
         self.configureTreeview()
@@ -274,29 +269,37 @@ class MainPage(customtkinter.CTk):
         self.current_page = self.inventory_frame
 
         # Clear previous items in the Treeview
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        self.tree.delete(*self.tree.get_children())
 
         idata = (f'{userLogged}_Inventory.csv')
         invenData = []
         print(idata)
 
-        with open(idata, 'r') as file:
-            reader = csv.reader(file)
-            next(reader)  # skip header
 
-            for row in reader:
-                inames = row[0]
-                iprice = row[1]
-                iid = row[2]
-                icategory = row[3]
-                icount = row[4]
+        if not os.path.exists(idata):
+            with open(idata, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(invenheaders)
+                print(f"new inventory csv file: {idata}")
+        else:
+            print(f"inventory csv file already exists: {idata}")
 
-                invenData.append([inames, iprice, iid, icategory, icount])
+            with open(idata, 'r') as file:
+                reader = csv.reader(file)
+                next(reader)  # skip header
 
-        # Add items from records to the Treeview
-        for record in invenData:
-            self.tree.insert("", "end", values=(record[0], record[1], record[2], record[3], record[4]))
+                for row in reader:
+                    inames = row[0]
+                    iprice = row[1]
+                    iid = row[2]
+                    icategory = row[3]
+                    icount = row[4]
+
+                    invenData.append([inames, iprice, iid, icategory, icount])
+
+            # Add items from records to the Treeview
+            for record in invenData:
+                self.tree.insert("", "end", values=(record[0], record[1], record[2], record[3], record[4]))
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
@@ -634,7 +637,6 @@ class Registry(customtkinter.CTkToplevel):
 
         self.btn = CTkButton(self.frame, text="Login", command=regBack)
         self.btn.grid(column=1, row=9, padx=(250, 250), pady=(0, 50), columnspan=2)
-
 
 app = MainPage()
 SignInWindow = SignIn(app)
