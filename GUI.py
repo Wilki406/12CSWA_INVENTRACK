@@ -146,7 +146,7 @@ class MainPage(customtkinter.CTk):
         # Define column widths
         self.tree.column("Name", width=150, anchor=tk.W)
         self.tree.column("Price", width=100, anchor=tk.CENTER)
-        self.tree.column("ID", width=50, anchor=tk.CENTER)
+        self.tree.column("ID", width=50, anchor=tk.CENTER,)
         self.tree.column("Category", width=100, anchor=tk.W)
         self.tree.column("Count", width=50, anchor=tk.CENTER)
 
@@ -171,11 +171,12 @@ class MainPage(customtkinter.CTk):
         style.map('Treeview', background=[('selected', '#22559b')])
 
         headerFont = tkFont.Font(family="Arial", size=14, weight="bold")
-        entryFont = tkFont.Font(family="Helvetica", size=2)
+        entryFont = tkFont.Font(family="Helvetica", size=8)
 
         style.configure("Treeview.Heading", font=headerFont)
         style.configure("Treeview", font=entryFont)
-        style.configure('Treeview', rowheight=35)
+        style.configure('Treeview', rowheight=40)
+
 
 
     def init_inventory_page(self):
@@ -183,17 +184,39 @@ class MainPage(customtkinter.CTk):
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
 
-        self.tree = ttk.Treeview(self.inventory_frame, height=25)
-        self.tree.grid(column=0, row=2, padx=(45, 45), pady=(0, 425), sticky='nsew')
 
+
+        self.tree = ttk.Treeview(self.inventory_frame, height=16)
+        self.tree.grid(column=0, row=2, padx=(45, 45), pady=(0, 0), sticky='nsew')
 
         # configurations to the columns and rows
         # this makes the treeview expand to the right
-        self.inventory_frame.grid_rowconfigure(2, weight=1)
+        self.inventory_frame.grid_rowconfigure(2, weight=0)
         self.inventory_frame.grid_columnconfigure(0, weight=1)
+        self.inventory_frame.grid_rowconfigure(3, weight=1)
+
+
+
+
 
         # Configure the Treeview
         self.configureTreeview()
+
+        self.invenWidgetFrame = customtkinter.CTkFrame(self.inventory_frame, corner_radius=10)
+        self.invenWidgetFrame.grid(column=0,row=3,rowspan=2,sticky='nsew',pady=(30,30),padx=30)
+
+        self.addbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Add", height=40, width=200, font=('Berlin Sans FB', 20))
+        self.addbutton.grid(column=0,row=0, pady=10, padx=10)
+
+        self.removebutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Remove", height=40, width=200, font=('Berlin Sans FB', 20))
+        self.removebutton.grid(column=1, row=0, pady=10, padx=10)
+
+        self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=40, width=200, font=('Berlin Sans FB', 20))
+        self.editbutton.grid(column=2, row=0, pady=10, padx=10)
+
+
+
+
 
     def init_report_page(self):
         label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 80))
@@ -299,7 +322,7 @@ class MainPage(customtkinter.CTk):
 
             # Add items from records to the Treeview
             for record in invenData:
-                self.tree.insert("", "end", values=(record[0], record[1], record[2], record[3], record[4]))
+                self.tree.insert("", "end", values=(record[0], ("$" + record[1]), record[2], record[3], record[4]))
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
