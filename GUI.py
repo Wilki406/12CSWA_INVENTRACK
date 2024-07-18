@@ -202,6 +202,8 @@ class MainPage(customtkinter.CTk):
         # Configure the Treeview
         self.configureTreeview()
 
+
+        # all the inventory shit
         self.invenWidgetFrame = customtkinter.CTkFrame(self.inventory_frame, corner_radius=10)
         self.invenWidgetFrame.grid(column=0,row=3,rowspan=2,sticky='nsew',pady=(30,30),padx=30)
 
@@ -213,6 +215,8 @@ class MainPage(customtkinter.CTk):
 
         self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=40, width=200, font=('Berlin Sans FB', 20))
         self.editbutton.grid(column=2, row=0, pady=10, padx=10)
+
+        
 
 
 
