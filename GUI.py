@@ -19,6 +19,7 @@ data = 'dataforsat.csv'
 headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
+
 # Load data function
 def loadData(data):
     records = []
@@ -44,7 +45,9 @@ def loadData(data):
 
     return records, usernameLists, idRank
 
+
 records, usernameLists, idRank = loadData(data)
+
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
@@ -101,31 +104,31 @@ class MainPage(customtkinter.CTk):
 
         # Create sidebar buttons (keep the existing code)
         self.bt_inven = customtkinter.CTkButton(self.sidebar_frame, text="Inventory", fg_color=buttonColour,
-                                                hover_color=buttonHoverColour,text_color=("black", "White"),
+                                                hover_color=buttonHoverColour, text_color=("black", "White"),
                                                 width=175, height=60, corner_radius=0, command=self.goInventoryPage)
         self.bt_inven.grid(row=1, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_inven)
 
         self.bt_report = customtkinter.CTkButton(self.sidebar_frame, text="Report", fg_color=buttonColour,
-                                                 hover_color=buttonHoverColour,text_color=("black", "White"),
+                                                 hover_color=buttonHoverColour, text_color=("black", "White"),
                                                  width=175, height=60, corner_radius=0, command=self.goReportPage)
         self.bt_report.grid(row=2, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_report)
 
         self.bt_stats = customtkinter.CTkButton(self.sidebar_frame, text="Statistics", fg_color=buttonColour,
-                                                hover_color=buttonHoverColour,text_color=("black", "White"),
+                                                hover_color=buttonHoverColour, text_color=("black", "White"),
                                                 width=175, height=60, corner_radius=0, command=self.goStatisticsPage)
         self.bt_stats.grid(row=3, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_stats)
 
         self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color=buttonColour,
-                                                  hover_color=buttonHoverColour,text_color=("black", "White"),
+                                                  hover_color=buttonHoverColour, text_color=("black", "White"),
                                                   width=175, height=60, corner_radius=0, command=self.goOptionsPage)
         self.bt_options.grid(row=4, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_options)
 
         self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color=buttonColour,
-                                                  hover_color=buttonHoverColour,text_color=("black", "White"),
+                                                  hover_color=buttonHoverColour, text_color=("black", "White"),
                                                   width=175, height=60, corner_radius=0, command=self.goAccountPage)
         self.bt_account.grid(row=5, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_account)
@@ -146,7 +149,7 @@ class MainPage(customtkinter.CTk):
         # Define column widths
         self.tree.column("Name", width=150, anchor=tk.W)
         self.tree.column("Price", width=100, anchor=tk.CENTER)
-        self.tree.column("ID", width=50, anchor=tk.CENTER,)
+        self.tree.column("ID", width=50, anchor=tk.CENTER, )
         self.tree.column("Category", width=100, anchor=tk.W)
         self.tree.column("Count", width=50, anchor=tk.CENTER)
 
@@ -177,48 +180,81 @@ class MainPage(customtkinter.CTk):
         style.configure("Treeview", font=entryFont)
         style.configure('Treeview', rowheight=40)
 
-
-
     def init_inventory_page(self):
         label = CTkLabel(self.inventory_frame, text="Inventory", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
 
-
-
-        self.tree = ttk.Treeview(self.inventory_frame, height=16)
-        self.tree.grid(column=0, row=2, padx=(45, 45), pady=(0, 0), sticky='nsew')
+        self.tree = ttk.Treeview(self.inventory_frame, height=10)
+        self.tree.grid(column=0, row=2, padx=(45, 45), pady=(0, 30), sticky='nsew')
 
         # configurations to the columns and rows
         # this makes the treeview expand to the right
         self.inventory_frame.grid_rowconfigure(2, weight=0)
         self.inventory_frame.grid_columnconfigure(0, weight=1)
-        self.inventory_frame.grid_rowconfigure(3, weight=1)
-
-
-
-
+        self.inventory_frame.grid_rowconfigure(4, weight=1)
 
         # Configure the Treeview
         self.configureTreeview()
 
-
         # all the inventory shit
         self.invenWidgetFrame = customtkinter.CTkFrame(self.inventory_frame, corner_radius=10)
-        self.invenWidgetFrame.grid(column=0,row=3,rowspan=2,sticky='nsew',pady=(30,30),padx=30)
+        self.invenWidgetFrame.grid(column=0, row=4, rowspan=1, sticky='nsew', pady=(0, 30), padx=30)
 
-        self.addbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Add", height=40, width=200, font=('Berlin Sans FB', 20))
-        self.addbutton.grid(column=0,row=0, pady=10, padx=10)
+        self.invenAddLabel = customtkinter.CTkLabel(self.inventory_frame, text="Inventory Management:", font=('Berlin Sans FB', 20))
+        self.invenAddLabel.grid(column=0, row=3, padx=40, pady=(30,10), sticky="w")
 
-        self.removebutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Remove", height=40, width=200, font=('Berlin Sans FB', 20))
-        self.removebutton.grid(column=1, row=0, pady=10, padx=10)
+        self.addbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Add", height=30,
+                                                 width=200, font=('Berlin Sans FB', 15))
+        self.addbutton.grid(column=0, row=1, pady=10, padx=10)
 
-        self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=40, width=200, font=('Berlin Sans FB', 20))
-        self.editbutton.grid(column=2, row=0, pady=10, padx=10)
+        self.removebutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Remove", height=30,
+                                                    width=200, font=('Berlin Sans FB', 15))
+        self.removebutton.grid(column=1, row=1, pady=10, padx=10)
 
-        
+        self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=30,
+                                                  width=200, font=('Berlin Sans FB', 15))
+        self.editbutton.grid(column=2, row=1, pady=10, padx=10)
 
 
+
+        self.nameEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Name:")
+        self.nameEntryLabel.grid(column=0, row=2, pady=(10,5), padx=20,sticky="w")
+
+        self.nameEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30,width=140)
+        self.nameEntry.grid(column=0, row=3, padx=10, sticky="w")
+
+
+
+        self.priceEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Price:")
+        self.priceEntryLabel.grid(column=1, row=2, pady=(10, 5), padx=20, sticky="w")
+
+        self.priceEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30, width=140)
+        self.priceEntry.grid(column=1, row=3, padx=10, sticky="w")
+
+
+
+        self.IDEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="ID:")
+        self.IDEntryLabel.grid(column=2, row=2, pady=(10, 5), padx=20, sticky="w")
+
+        self.IDEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30, width=140)
+        self.IDEntry.grid(column=2, row=3, padx=10, sticky="w")
+
+
+
+        self.categoryEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Category:")
+        self.categoryEntryLabel.grid(column=3, row=2, pady=(10, 5), padx=20, sticky="w")
+
+        self.categoryEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30, width=140)
+        self.categoryEntry.grid(column=3, row=3, padx=(10,70), sticky="w")
+
+
+
+        self.countEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Count:")
+        self.countEntryLabel.grid(column=4, row=2, pady=(10, 5), padx=20, sticky="w")
+
+        self.countEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30, width=140)
+        self.countEntry.grid(column=4, row=3, padx=10, sticky="w")
 
 
 
@@ -237,8 +273,8 @@ class MainPage(customtkinter.CTk):
         label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25))
 
         label2 = CTkLabel(self.options_frame, text="UI Colour: ", text_color=("black", "White"),
-                         font=('Berlin Sans FB', 40))
-        label2.grid(column=0, row=2, padx=(30, 30), pady=(25, 25),sticky="w")
+                          font=('Berlin Sans FB', 40))
+        label2.grid(column=0, row=2, padx=(30, 30), pady=(25, 25), sticky="w")
 
         # Add the rest of the options page widgets here
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
@@ -249,11 +285,11 @@ class MainPage(customtkinter.CTk):
             dropdown_fg_color="#006b5f",
             button_color="#014f46",
             button_hover_color="#01362f")
-        self.appearance_mode_optionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20),sticky="w")
+        self.appearance_mode_optionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
         label3 = CTkLabel(self.options_frame, text="UI Scale:", text_color=("black", "White"),
-                         font=('Berlin Sans FB', 40))
-        label3.grid(column=0, row=4, padx=(30, 30), pady=(25, 25),sticky="w")
+                          font=('Berlin Sans FB', 40))
+        label3.grid(column=0, row=4, padx=(30, 30), pady=(25, 25), sticky="w")
 
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_frame,
                                                                values=["80%", "90%", "100%", "110%", "120%"],
@@ -262,11 +298,11 @@ class MainPage(customtkinter.CTk):
                                                                dropdown_fg_color="#006b5f",
                                                                button_color="#014f46",
                                                                button_hover_color="#01362f")
-        self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20),sticky="w")
+        self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
     def init_account_page(self):
         label = CTkLabel(self.account_frame, text="Account Details", text_color=("black", "White"),
-                                  font=('Berlin Sans FB', 80))
+                         font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25), columnspan=1)
 
         self.userlabel = CTkLabel(self.account_frame, text="Username: ", text_color=("black", "White"),
@@ -301,7 +337,6 @@ class MainPage(customtkinter.CTk):
         idata = (f'{userLogged}_Inventory.csv')
         invenData = []
         print(idata)
-
 
         if not os.path.exists(idata):
             with open(idata, 'w', newline='') as file:
@@ -426,6 +461,7 @@ class MainPage(customtkinter.CTk):
 
         print(f"{meow2} THIS IS MEOW 2")
         customtkinter.set_widget_scaling(meow)
+
 
 class SignIn(customtkinter.CTkToplevel):
     def __init__(self, signApp):
@@ -664,6 +700,7 @@ class Registry(customtkinter.CTkToplevel):
 
         self.btn = CTkButton(self.frame, text="Login", command=regBack)
         self.btn.grid(column=1, row=9, padx=(250, 250), pady=(0, 50), columnspan=2)
+
 
 app = MainPage()
 SignInWindow = SignIn(app)
