@@ -180,6 +180,9 @@ class MainPage(customtkinter.CTk):
         style.configure("Treeview", font=entryFont)
         style.configure('Treeview', rowheight=40)
 
+
+
+
     def init_inventory_page(self):
         label = CTkLabel(self.inventory_frame, text="Inventory", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
@@ -197,6 +200,8 @@ class MainPage(customtkinter.CTk):
         # Configure the Treeview
         self.configureTreeview()
 
+        #self.tree.bind('<<TreeviewSelect>>', self.selectInvenItem)
+
         # all the inventory shit
         self.invenWidgetFrame = customtkinter.CTkFrame(self.inventory_frame, corner_radius=10)
         self.invenWidgetFrame.grid(column=0, row=4, rowspan=1, sticky='nsew', pady=(0, 30), padx=30)
@@ -205,24 +210,28 @@ class MainPage(customtkinter.CTk):
         self.invenAddLabel.grid(column=0, row=3, padx=40, pady=(30,10), sticky="w")
 
         self.addbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Add", height=30,
-                                                 width=200, font=('Berlin Sans FB', 15))
+                                                 width=200, font=('Berlin Sans FB', 15), command=self.AddToInven)
         self.addbutton.grid(column=0, row=1, pady=10, padx=10)
 
         self.removebutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Remove", height=30,
-                                                    width=200, font=('Berlin Sans FB', 15))
+                                                    width=200, font=('Berlin Sans FB', 15),command=self.delInvenItem)
         self.removebutton.grid(column=1, row=1, pady=10, padx=10)
 
         self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=30,
                                                   width=200, font=('Berlin Sans FB', 15))
         self.editbutton.grid(column=2, row=1, pady=10, padx=10)
 
+        self.clearbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Clear", height=30,
+                                                  width=200, font=('Berlin Sans FB', 15), command=self.clrInvenEntryB)
+        self.clearbutton.grid(column=3, row=1, pady=10, padx=10)
 
 
-        self.nameEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Name:")
-        self.nameEntryLabel.grid(column=0, row=2, pady=(10,5), padx=20,sticky="w")
 
-        self.nameEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30,width=140)
-        self.nameEntry.grid(column=0, row=3, padx=10, sticky="w")
+        self.inameEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Name:")
+        self.inameEntryLabel.grid(column=0, row=2, pady=(10,5), padx=20,sticky="w")
+
+        self.inameEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30,width=140)
+        self.inameEntry.grid(column=0, row=3, padx=10, sticky="w")
 
 
 
@@ -256,7 +265,13 @@ class MainPage(customtkinter.CTk):
         self.countEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30, width=140)
         self.countEntry.grid(column=4, row=3, padx=10, sticky="w")
 
-
+        self.invenboxes = [
+            (self.inameEntry, "nameEntry"),
+            (self.priceEntry, "priceEntry"),
+            (self.IDEntry, "IDEntry"),
+            (self.categoryEntry, "categoryEntry"),
+            (self.countEntry, "countEntry")
+        ]
 
     def init_report_page(self):
         label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 80))
@@ -326,6 +341,11 @@ class MainPage(customtkinter.CTk):
         frame.grid(column=1, row=0, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
         self.current_page = frame
 
+
+
+
+
+
     def goInventoryPage(self):
         self.set_active_button(self.bt_inven)
         self.show_frame(self.inventory_frame)
@@ -333,8 +353,9 @@ class MainPage(customtkinter.CTk):
 
         # Clear previous items in the Treeview
         self.tree.delete(*self.tree.get_children())
-
+        global idata
         idata = (f'{userLogged}_Inventory.csv')
+        global invenData
         invenData = []
         print(idata)
 
@@ -345,7 +366,8 @@ class MainPage(customtkinter.CTk):
                 print(f"new inventory csv file: {idata}")
         else:
             print(f"inventory csv file already exists: {idata}")
-
+            global listofIDs
+            listofIDs = []
             with open(idata, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)  # skip header
@@ -357,11 +379,105 @@ class MainPage(customtkinter.CTk):
                     icategory = row[3]
                     icount = row[4]
 
+                    listofIDs.append(iid)
                     invenData.append([inames, iprice, iid, icategory, icount])
 
             # Add items from records to the Treeview
             for record in invenData:
                 self.tree.insert("", "end", values=(record[0], ("$" + record[1]), record[2], record[3], record[4]))
+
+
+
+    def AddToInven(self):
+
+        # Loop through entries and update border colors
+        for entry, name in self.invenboxes:
+            if entry.get() == "":
+                entry.configure(border_color="red")
+            else:
+                entry.configure(border_color="gray")
+
+        if self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and self.categoryEntry.get() and self.countEntry != "":
+            itemName = self.inameEntry.get()
+            if self.priceEntry.get().isnumeric() == True:
+                self.priceEntry.configure(border_color="gray")
+                itemPrice = self.priceEntry.get()
+                if self.IDEntry.get() not in listofIDs or self.IDEntry.get().isnumeric() == True:
+                    self.IDEntry.configure(border_color="gray")
+                    itemID = self.IDEntry.get()
+                    itemCategory = self.categoryEntry.get()
+                    itemCount = self.countEntry.get()
+
+                    newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+                    with open(idata, 'w', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(invenheaders)
+                        print(headers)
+                        writer.writerows(invenData)
+                        print(invenData)
+                        writer.writerow(newItem)
+                        print(newItem)
+
+                    self.clrInvenEntryB()
+                    self.goInventoryPage()
+
+                else:
+                    self.IDEntry.configure(border_color="red")
+            else:
+                self.priceEntry.configure(border_color="red")
+
+
+
+    def clrInvenEntryB(self):
+        for entry, name in self.invenboxes:
+                entry.delete(0, 'end')
+
+    # def selectInvenItem(self, event):
+    #     selected_item = self.tree.selection()
+    #     if selected_item:  # If something is selected
+    #         item = self.tree.item(selected_item[0])
+    #         print(selected_item)
+    #         print(item)
+    #         row_data = item['values']
+    #
+    #         # save the row data as an instance variable
+    #         self.selected_row = row_data
+    #
+    #         # print the selected row
+    #         print(f"Selected row: {self.selected_row}")
+
+    def delInvenItem(self):
+        global invenData
+        global idata
+
+        selected_item = self.tree.selection()
+        if selected_item:  # If something is selected
+            item = self.tree.item(selected_item[0])
+            row_data = item['values']
+
+            # Save the row data as an instance variable
+            self.selected_row = row_data
+
+            print(f"Selected row: {self.selected_row}")
+            #print(f"invenData before deletion: {invenData}")
+
+            # delete the item from the treeview
+            self.tree.delete(selected_item[0])
+
+            # Remove the item from the invenData list
+            invenData = [row for row in invenData if row[2] != str(self.selected_row[2])]
+            # ^ make new list of lists of every row in invenData except if the ID matches the selected row's ID
+
+            #print(f"invenData after deletion: {invenData}")
+
+            # Update the CSV file
+            with open(idata, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(invenheaders)
+                writer.writerows(invenData)
+                print(f"CSV updated: {idata}")
+
+            print(f"Deleted item: {self.selected_row}")
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
@@ -388,7 +504,7 @@ class MainPage(customtkinter.CTk):
                 meow = float(startingScale)
                 meow2 = str(int(meow * 100)) + "%"
                 self.scaling_optionemenu.set(meow2)
-                break
+                break # for efficiency so it dont go through more rows after finding needed row
 
     def goAccountPage(self):
         self.set_active_button(self.bt_account)
@@ -435,7 +551,6 @@ class MainPage(customtkinter.CTk):
             new_scaling_float = int(inputedScale.replace("%", "")) / 100
             customtkinter.set_widget_scaling(new_scaling_float)
 
-            # Update records and save to file
             for i, row in enumerate(records):
                 if userLogged in row[1] and idNum in row[0]:
                     records[i][5] = str(new_scaling_float)
@@ -445,21 +560,15 @@ class MainPage(customtkinter.CTk):
                 writer.writerow(headers)
                 writer.writerows(records)
 
-            # Maintain the current page (Options page in this case)
             self.show_frame(self.current_page)
 
             return
 
         except Exception as e:
             print(f"Error in change_scaling_event: {e}")
-            # Optionally, you can add a message to the user here
 
     def startUserScale(self, scale):  # Change at program run from data
         meow = float(scale)
-        print(f"{meow} THIS IS MEOW")
-        meow2 = round(meow * 100)
-
-        print(f"{meow2} THIS IS MEOW 2")
         customtkinter.set_widget_scaling(meow)
 
 
