@@ -389,7 +389,6 @@ class MainPage(customtkinter.CTk):
 
 
     def AddToInven(self):
-
         # Loop through entries and update border colors
         for entry, name in self.invenboxes:
             if entry.get() == "":
@@ -406,21 +405,24 @@ class MainPage(customtkinter.CTk):
                     self.IDEntry.configure(border_color="gray")
                     itemID = self.IDEntry.get()
                     itemCategory = self.categoryEntry.get()
-                    itemCount = self.countEntry.get()
+                    if self.countEntry.get().isnumeric() == True:
+                        self.countEntry.configure(border_color="gray")
+                        itemCount = self.countEntry.get()
+                        newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+                        with open(idata, 'w', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow(invenheaders)
+                            print(headers)
+                            writer.writerows(invenData)
+                            print(invenData)
+                            writer.writerow(newItem)
+                            print(newItem)
 
-                    newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
-                    with open(idata, 'w', newline='') as file:
-                        writer = csv.writer(file)
-                        writer.writerow(invenheaders)
-                        print(headers)
-                        writer.writerows(invenData)
-                        print(invenData)
-                        writer.writerow(newItem)
-                        print(newItem)
+                        self.clrInvenEntryB()
+                        self.goInventoryPage()
 
-                    self.clrInvenEntryB()
-                    self.goInventoryPage()
-
+                    else:
+                        self.countEntry.configure(border_color="red")
                 else:
                     self.IDEntry.configure(border_color="red")
             else:
