@@ -11,9 +11,12 @@ from ttkthemes import ThemedStyle
 import os
 
 #############################################
-# TODO: encryption, inventory, statistics
-# TODO: CURRENT BUGS: RELOAD DATA AFTER REG,
-# TODO: FIXED BUGS:
+# TODO:
+#  encryption, inventory, statistics
+#  CURRENT BUGS:
+#  FIXED BUGS:
+#    New User 100 in scale instead of 1.0
+#    RELOAD DATA AFTER REG
 #    ISNUMERIC IS ONLY INTEGERS NOT FLOATS
 #############################################
 
@@ -608,6 +611,8 @@ class SignIn(customtkinter.CTkToplevel):
             self.labelsign.configure(text="")
 
         def logHandler():
+            global records, usernameLists, idRank
+            records, usernameLists, idRank = loadData(data)
             if self.userEntry.get() == "" and self.passwordEntry.get() == "":
                 self.labelsign.configure(text="Enter your details", text_color="red")
             elif self.userEntry.get() == "":
