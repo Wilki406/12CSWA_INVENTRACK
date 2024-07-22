@@ -1,3 +1,5 @@
+# Programmer: Benjamin D Wilkinson
+
 from customtkinter import *
 import customtkinter
 import csv
@@ -10,6 +12,9 @@ import os
 
 #############################################
 # TODO: encryption, inventory, statistics
+# TODO: CURRENT BUGS: RELOAD DATA AFTER REG,
+# TODO: FIXED BUGS:
+#    ISNUMERIC IS ONLY INTEGERS NOT FLOATS
 #############################################
 
 startingScale = "1"
@@ -20,7 +25,7 @@ headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
 
-# Load data function
+# Load data function for
 def loadData(data):
     records = []
     idRank = []
@@ -136,9 +141,9 @@ class MainPage(customtkinter.CTk):
         self.set_active_button(self.bt_inven)  # Set the initial active button which is inventory
 
     def configureTreeview(self):
-        # Add columns to the Treeview
+
         self.tree["columns"] = ("Name", "Price", "ID", "Category", "Count")
-        # Hide the tree column
+
         self.tree['show'] = 'headings'
 
         self.tree.update_idletasks()
@@ -292,7 +297,7 @@ class MainPage(customtkinter.CTk):
         label2.grid(column=0, row=2, padx=(30, 30), pady=(25, 25), sticky="w")
 
         # Add the rest of the options page widgets here
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
+        self.appearanceModeOptionemenu = customtkinter.CTkOptionMenu(
             self.options_frame,
             values=["Dark", "Light", "System"],
             command=self.colourChange,
@@ -300,7 +305,7 @@ class MainPage(customtkinter.CTk):
             dropdown_fg_color="#006b5f",
             button_color="#014f46",
             button_hover_color="#01362f")
-        self.appearance_mode_optionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
+        self.appearanceModeOptionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
         label3 = CTkLabel(self.options_frame, text="UI Scale:", text_color=("black", "White"),
                           font=('Berlin Sans FB', 40))
@@ -342,10 +347,6 @@ class MainPage(customtkinter.CTk):
         self.current_page = frame
 
 
-
-
-
-
     def goInventoryPage(self):
         self.set_active_button(self.bt_inven)
         self.show_frame(self.inventory_frame)
@@ -379,14 +380,23 @@ class MainPage(customtkinter.CTk):
                     icategory = row[3]
                     icount = row[4]
 
-                    listofIDs.append(iid)
+                    listofIDs.append([iid])
                     invenData.append([inames, iprice, iid, icategory, icount])
 
             # Add items from records to the Treeview
             for record in invenData:
                 self.tree.insert("", "end", values=(record[0], ("$" + record[1]), record[2], record[3], record[4]))
 
-
+    def is_numeric(self, var):
+        if isinstance(var, (int, float)):
+            return True
+        if isinstance(var, str):
+            try:
+                float(var)
+                return True
+            except ValueError:
+                return False
+        return False
 
     def AddToInven(self):
         # Loop through entries and update border colors
@@ -395,20 +405,26 @@ class MainPage(customtkinter.CTk):
                 entry.configure(border_color="red")
             else:
                 entry.configure(border_color="gray")
+        print(listofIDs)
+        if (self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and
+                self.categoryEntry.get() and self.countEntry.get()):
 
-        if self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and self.categoryEntry.get() and self.countEntry != "":
             itemName = self.inameEntry.get()
-            if self.priceEntry.get().isnumeric() == True:
+
+            if self.is_numeric(self.priceEntry.get()):
                 self.priceEntry.configure(border_color="gray")
                 itemPrice = self.priceEntry.get()
-                if self.IDEntry.get() not in listofIDs or self.IDEntry.get().isnumeric() == True:
+
+                if self.IDEntry.get() not in [id[0] for id in listofIDs]:
                     self.IDEntry.configure(border_color="gray")
                     itemID = self.IDEntry.get()
                     itemCategory = self.categoryEntry.get()
+
                     if self.countEntry.get().isnumeric() == True:
                         self.countEntry.configure(border_color="gray")
                         itemCount = self.countEntry.get()
                         newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+
                         with open(idata, 'w', newline='') as file:
                             writer = csv.writer(file)
                             writer.writerow(invenheaders)
@@ -429,24 +445,13 @@ class MainPage(customtkinter.CTk):
                 self.priceEntry.configure(border_color="red")
 
 
-
     def clrInvenEntryB(self):
         for entry, name in self.invenboxes:
                 entry.delete(0, 'end')
 
-    # def selectInvenItem(self, event):
-    #     selected_item = self.tree.selection()
-    #     if selected_item:  # If something is selected
-    #         item = self.tree.item(selected_item[0])
-    #         print(selected_item)
-    #         print(item)
-    #         row_data = item['values']
-    #
-    #         # save the row data as an instance variable
-    #         self.selected_row = row_data
-    #
-    #         # print the selected row
-    #         print(f"Selected row: {self.selected_row}")
+        for entry, name in self.invenboxes:
+            entry.configure(border_color="gray")
+
 
     def delInvenItem(self):
         global invenData
@@ -492,28 +497,29 @@ class MainPage(customtkinter.CTk):
         self.current_page = self.statistics_frame
 
     def goOptionsPage(self):
+        # Change frame, Active Button to Options Page
         self.set_active_button(self.bt_options)
         self.show_frame(self.options_frame)
         self.current_page = self.options_frame
 
-        # Update the options if needed
-        self.appearance_mode_optionemenu.set(customtkinter.get_appearance_mode())
+        # set
+        self.appearanceModeOptionemenu.set(customtkinter.get_appearance_mode())
 
-        # Calculate meow2 value
         for row in records:
             if idNum == row[0] and userLogged == row[1]:
                 startingScale = row[5]
                 meow = float(startingScale)
                 meow2 = str(int(meow * 100)) + "%"
                 self.scaling_optionemenu.set(meow2)
-                break # for efficiency so it dont go through more rows after finding needed row
+                break # for efficiency so it doesn't go through more rows after finding needed row
 
     def goAccountPage(self):
+        # Change frame, Active Button to Account Page
         self.set_active_button(self.bt_account)
         self.show_frame(self.account_frame)
         self.current_page = self.account_frame
 
-        # Update account information if needed
+        # Change labels to display user data
         self.userlabel2.configure(text=userLogged)
         self.namelabel2.configure(text=userFullname)
 
@@ -696,7 +702,7 @@ class Registry(customtkinter.CTkToplevel):
         self.frame.grid()
 
         def regBack():
-            records, usernameLists, idRank = loadData(data)
+            loadData(data)
             self.withdraw()
             self.sign_in_window.deiconify()
 
@@ -751,7 +757,7 @@ class Registry(customtkinter.CTkToplevel):
 
                         print("username is unique")
                         userDesRank = idRank[-1] + 1
-                        scaleF = 100
+                        scaleF = 1.0
                         uiC = "dark"
                         newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC]
 
