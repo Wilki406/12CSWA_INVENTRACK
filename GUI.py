@@ -12,12 +12,14 @@ import os
 
 #############################################
 # TODO:
-#  encryption, inventory, statistics
+#  data encryption, edit function, statistics page, report page,
 #  CURRENT BUGS:
 #  FIXED BUGS:
 #    New User 100 in scale instead of 1.0
 #    RELOAD DATA AFTER REG
 #    ISNUMERIC IS ONLY INTEGERS NOT FLOATS
+#    Fixed edit bug that doesnt validate
+#    Fixed edit bug that doesnt allow for the same id item to be changed
 #############################################
 
 startingScale = "1"
@@ -226,11 +228,11 @@ class MainPage(customtkinter.CTk):
         self.removebutton.grid(column=1, row=1, pady=10, padx=10)
 
         self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=30,
-                                                  width=200, font=('Berlin Sans FB', 15))
+                                                  width=200, font=('Berlin Sans FB', 15), command=self.editInvenItem)
         self.editbutton.grid(column=2, row=1, pady=10, padx=10)
 
         self.clearbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Clear", height=30,
-                                                  width=200, font=('Berlin Sans FB', 15), command=self.clrInvenEntryB)
+                                                  width=200, font=('Berlin Sans FB', 15), command=self.clrInvenEntry)
         self.clearbutton.grid(column=3, row=1, pady=10, padx=10)
 
 
@@ -437,7 +439,7 @@ class MainPage(customtkinter.CTk):
                             writer.writerow(newItem)
                             print(newItem)
 
-                        self.clrInvenEntryB()
+                        self.clrInvenEntry()
                         self.goInventoryPage()
 
                     else:
@@ -448,7 +450,7 @@ class MainPage(customtkinter.CTk):
                 self.priceEntry.configure(border_color="red")
 
 
-    def clrInvenEntryB(self):
+    def clrInvenEntry(self):
         for entry, name in self.invenboxes:
                 entry.delete(0, 'end')
 
@@ -488,6 +490,80 @@ class MainPage(customtkinter.CTk):
                 print(f"CSV updated: {idata}")
 
             print(f"Deleted item: {self.selected_row}")
+
+    def editInvenItem(self):
+        selected_item = self.tree.selection()
+        if selected_item:
+            item = self.tree.item(selected_item[0])
+            row_data = item['values']
+
+            # check if any data is different before updating
+            data_different = False
+            for i, (entry, name) in enumerate(self.invenboxes):
+                current_value = entry.get()
+                compare_value = row_data[i][1:] if i == 1 else str(row_data[i])
+                if current_value != compare_value:
+                    data_different = True
+                    break
+
+            if data_different:
+                # save the row data as an instance variable
+                self.selected_row = row_data
+                print(f"Selected row: {self.selected_row}")
+
+                # Clear existing entries and insert new data
+                for i, (entry, name) in enumerate(self.invenboxes):
+                    entry.delete(0, 'end')
+                    if i == 1: # this is the price entry
+                        entry.insert(0, row_data[i][1:])  # Remove the '$' sign
+                    else:
+                        entry.insert(0, row_data[i])
+
+                self.confirmbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Confirm Edit",
+                                                           height=30,
+                                                           width=200, font=('Berlin Sans FB', 15),
+                                                           command=self.confirmEdit)
+                self.confirmbutton.grid(column=4, row=1, pady=10, padx=10)
+
+
+
+            else:
+                print("This item's data is already in the entry boxes.")
+
+    def confirmEdit(self):
+        self.confirmbutton.destroy()
+        if (self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and
+                self.categoryEntry.get() and self.countEntry.get()):
+
+            itemName = self.inameEntry.get()
+
+            if self.is_numeric(self.priceEntry.get()):
+                self.priceEntry.configure(border_color="gray")
+                itemPrice = self.priceEntry.get()
+
+                self.IDEntry.configure(border_color="gray")
+                itemID = self.IDEntry.get()
+                itemCategory = self.categoryEntry.get()
+
+                if self.countEntry.get().isnumeric() == True:
+                    self.countEntry.configure(border_color="gray")
+                    itemCount = self.countEntry.get()
+                    newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+
+                    with open(idata, 'w', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(invenheaders)
+                        print(headers)
+                        writer.writerows(invenData)
+                        print(invenData)
+                        writer.writerow(newItem)
+                        print(newItem)
+
+                    self.clrInvenEntry()
+                    self.goInventoryPage()
+                    self.delInvenItem()
+        return
+
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
