@@ -20,6 +20,8 @@ import os
 #    ISNUMERIC IS ONLY INTEGERS NOT FLOATS
 #    Fixed edit bug that doesnt validate
 #    Fixed edit bug that doesnt allow for the same id item to be changed
+#    Clear Id list after editing and deleting
+#    Fix edit function not editing
 #############################################
 
 startingScale = "1"
@@ -30,7 +32,7 @@ headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
 
-# Load data function for
+# Load data function for user log in data
 def loadData(data):
     records = []
     idRank = []
@@ -369,9 +371,9 @@ class MainPage(customtkinter.CTk):
             with open(idata, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(invenheaders)
-                print(f"new inventory csv file: {idata}")
+                #print(f"new inventory csv file: {idata}")
         else:
-            print(f"inventory csv file already exists: {idata}")
+            #print(f"inventory csv file already exists: {idata}")
             global listofIDs
             listofIDs = []
             with open(idata, 'r') as file:
@@ -410,6 +412,7 @@ class MainPage(customtkinter.CTk):
                 entry.configure(border_color="red")
             else:
                 entry.configure(border_color="gray")
+
         print(listofIDs)
         if (self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and
                 self.categoryEntry.get() and self.countEntry.get()):
@@ -497,38 +500,25 @@ class MainPage(customtkinter.CTk):
             item = self.tree.item(selected_item[0])
             row_data = item['values']
 
-            # check if any data is different before updating
-            data_different = False
+            # Save the row data as an instance variable
+            self.selected_row = row_data
+            print(f"Selected row in editInvenItem: {self.selected_row}")
+
+            # Clear existing entries and insert new data
             for i, (entry, name) in enumerate(self.invenboxes):
-                current_value = entry.get()
-                compare_value = row_data[i][1:] if i == 1 else str(row_data[i])
-                if current_value != compare_value:
-                    data_different = True
-                    break
+                entry.delete(0, 'end')
+                if i == 1:  # this is the price entry
+                    entry.insert(0, row_data[i][1:])  # Remove the '$' sign
+                else:
+                    entry.insert(0, str(row_data[i]))  # Convert all values to string
 
-            if data_different:
-                # save the row data as an instance variable
-                self.selected_row = row_data
-                print(f"Selected row: {self.selected_row}")
-
-                # Clear existing entries and insert new data
-                for i, (entry, name) in enumerate(self.invenboxes):
-                    entry.delete(0, 'end')
-                    if i == 1: # this is the price entry
-                        entry.insert(0, row_data[i][1:])  # Remove the '$' sign
-                    else:
-                        entry.insert(0, row_data[i])
-
-                self.confirmbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Confirm Edit",
-                                                           height=30,
-                                                           width=200, font=('Berlin Sans FB', 15),
-                                                           command=self.confirmEdit)
-                self.confirmbutton.grid(column=4, row=1, pady=10, padx=10)
-
-
-
-            else:
-                print("This item's data is already in the entry boxes.")
+            self.confirmbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Confirm Edit",
+                                                         height=30,
+                                                         width=200, font=('Berlin Sans FB', 15),
+                                                         command=self.confirmEdit)
+            self.confirmbutton.grid(column=4, row=1, pady=10, padx=10)
+        else:
+            print("No item selected for editing")
 
     def confirmEdit(self):
         self.confirmbutton.destroy()
@@ -541,28 +531,50 @@ class MainPage(customtkinter.CTk):
                 self.priceEntry.configure(border_color="gray")
                 itemPrice = self.priceEntry.get()
 
-                self.IDEntry.configure(border_color="gray")
-                itemID = self.IDEntry.get()
-                itemCategory = self.categoryEntry.get()
+                if self.IDEntry.get() not in listofIDs:
+                    self.IDEntry.configure(border_color="gray")
+                    itemID = self.IDEntry.get()
+                    itemCategory = self.categoryEntry.get()
 
-                if self.countEntry.get().isnumeric() == True:
-                    self.countEntry.configure(border_color="gray")
-                    itemCount = self.countEntry.get()
-                    newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+                    if self.countEntry.get().isnumeric():
+                        self.countEntry.configure(border_color="gray")
+                        itemCount = self.countEntry.get()
+                        editedItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
 
-                    with open(idata, 'w', newline='') as file:
-                        writer = csv.writer(file)
-                        writer.writerow(invenheaders)
-                        print(headers)
-                        writer.writerows(invenData)
-                        print(invenData)
-                        writer.writerow(newItem)
-                        print(newItem)
+                        print(f"Edited item: {editedItem}")
+                        print(f"Selected row: {self.selected_row}")
+                        print(f"Current invenData: {invenData}")
 
-                    self.clrInvenEntry()
-                    self.goInventoryPage()
-                    self.delInvenItem()
-        return
+                        # Find the index of the item to be edited in invenData
+                        index_to_edit = next(
+                            (index for (index, d) in enumerate(invenData) if d[2] == str(self.selected_row[2])), None)
+
+                        if index_to_edit is not None:
+                            print(f"Found item at index: {index_to_edit}")
+                            # Replace the old item with the edited item
+                            invenData[index_to_edit] = editedItem
+
+                            # Update the CSV file
+                            with open(idata, 'w', newline='') as file:
+                                writer = csv.writer(file)
+                                writer.writerow(invenheaders)
+                                writer.writerows(invenData)
+
+                            print(f"Updated invenData: {invenData}")
+                            self.clrInvenEntry()
+                            self.goInventoryPage()
+                        else:
+                            print(f"Error: Item not found in inventory data. ID: {self.selected_row[2]}")
+                            print(f"IDs in invenData: {[row[2] for row in invenData]}")
+                    else:
+                        self.countEntry.configure(border_color="red")
+                else:
+                    self.priceEntry.configure(border_color="red")
+            else:
+                for entry, name in self.invenboxes:
+                    if entry.get() == "":
+                        entry.configure(border_color="red")
+            return
 
 
     def goReportPage(self):
@@ -584,6 +596,7 @@ class MainPage(customtkinter.CTk):
         # set
         self.appearanceModeOptionemenu.set(customtkinter.get_appearance_mode())
 
+        # i cant remember why this is here
         for row in records:
             if idNum == row[0] and userLogged == row[1]:
                 startingScale = row[5]
@@ -716,14 +729,14 @@ class SignIn(customtkinter.CTkToplevel):
                         global idNum
                         idNum = row[0]
 
-                        print(startingUIC)
-                        print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
+                        #print(startingUIC)
+                        #print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
                         self.withdraw()
                         self.app.deiconify()
                         self.app.state("zoomed")  # Zoom in
                         self.app.startUserScale(startingScale)  # Factor in scale
-                        self.app.colourChange(startingUIC)
+                        self.app.colourChange(startingUIC) # Factor in UIC
                         self.app.goInventoryPage()  # Make the inventory page the landing page
                         return
 
