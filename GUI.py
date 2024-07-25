@@ -9,11 +9,12 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from ttkthemes import ThemedStyle
 import os
+from CTkToolTip import *
 
 #############################################
 # TODO:
-#  data encryption, edit function, statistics page, report page,
-#  CURRENT BUGS:
+#  data encryption, statistics page, report page,
+#  CURRENT BUGS: confirm edit with cleared boxes
 #  FIXED BUGS:
 #    New User 100 in scale instead of 1.0
 #    RELOAD DATA AFTER REG
@@ -24,9 +25,11 @@ import os
 #    Fix edit function not editing
 #############################################
 
+# Defining variables for default scale and ui colour settings
 startingScale = "1"
 startingUIC = "Dark"
 
+# Defining header files for csv files and define the user data csv file
 data = 'dataforsat.csv'
 headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
@@ -34,15 +37,17 @@ invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
 # Load data function for user log in data
 def loadData(data):
+    # Define placeholder arrays to be defined later
     records = []
     idRank = []
     usernameLists = []
 
+    # Read the user data CSV file
     with open(data, 'r') as file:
         reader = csv.reader(file)
-        next(reader)
+        next(reader) # Skip the header row
 
-        for row in reader:
+        for row in reader: # Define each column to its own array
             ids = row[0]
             usernames = row[1]
             passwords = row[2]
@@ -51,48 +56,52 @@ def loadData(data):
             scales = row[5]
             UICs = row[6]
 
-            idRank.append(int(ids))
-            usernameLists.append(usernames)
-            records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs])
+            idRank.append(int(ids)) # Append the integer value to the array
+            usernameLists.append(usernames) # Append the usernames to the array
+            records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs]) # 2D array of everything together
 
-    return records, usernameLists, idRank
-
-
-records, usernameLists, idRank = loadData(data)
+    return records, usernameLists, idRank # Return it all
 
 
-class MainPage(customtkinter.CTk):
+records, usernameLists, idRank = loadData(data) # Call upon the function tho define the arrays
+
+
+class MainPage(customtkinter.CTk): # Class for main window
     def __init__(self):
         super().__init__()
-        self.title("InvenTracker")
-        self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight()))
-        self.resizable(width=True, height=True)
-        self.wm_iconbitmap('Images/invenico.ico')  # Set icon for MainPage
-        self.current_page = None
+        self.title("InvenTracker") # Title the window
+        self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight())) # Window size
+        self.resizable(width=True, height=True) # set the window to be resizable
+        self.wm_iconbitmap('Images/invenico.ico')  # Set icon for the main window
+        self.current_page = None # define the current page as no current page at the start
 
+        # Make these variables global to be used elsewhere
         global buttonColour
         global buttonHoverColour
         global buttonSelectedColour
 
+        # Define the variables
         buttonColour = "#949494"
         buttonHoverColour = "#6e6e6e"
         buttonSelectedColour = "#4d4d4d"
 
+        # make a placeholder array for the buttons on the side bar frame
         self.sidebar_buttons = []
 
         # main frame
-        self.main_container = customtkinter.CTkFrame(self, corner_radius=10)
-        self.main_container.grid(column=1, row=0, rowspan=3, padx=(10, 10), pady=(10, 10), sticky=('nsew'))
-        self.main_container.grid_rowconfigure(2, weight=1)
+        self.mainContainer = customtkinter.CTkFrame(self, corner_radius=10)
+        self.mainContainer.grid(column=1, row=0, rowspan=3, padx=(10, 10), pady=(10, 10), sticky=('nsew'))
+        self.mainContainer.grid_rowconfigure(2, weight=1)
 
         # Create frames for each page
-        self.inventory_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.report_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.statistics_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.options_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
-        self.account_frame = customtkinter.CTkFrame(self.main_container, corner_radius=10)
+        self.inventoryFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
+        self.reportFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
+        self.statisticsFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
+        self.optionsFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
+        self.accountFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
 
         # Initialize content for each frame
+        # because its 3 words im using snake case instead
         self.init_inventory_page()
         self.init_report_page()
         self.init_statistics_page()
@@ -100,9 +109,10 @@ class MainPage(customtkinter.CTk):
         self.init_account_page()
 
         # configurations
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
-        self.main_container.grid_columnconfigure(1, weight=1)  # Allow row 0 to expand vertically
+        self.grid_columnconfigure(1, weight=1) # Allow column 1 to expand horizontally
+        self.grid_rowconfigure((0, 1, 2), weight=1) # Allow row 0,1,2 to expand vertically
+
+        self.mainContainer.grid_columnconfigure(1, weight=1)  # Allow column 1 to expand horizontally
 
         # sidebar frame
         self.sidebar_frame = customtkinter.CTkFrame(self, width=300, corner_radius=0)
@@ -110,6 +120,7 @@ class MainPage(customtkinter.CTk):
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
 
         ### Side bar widgets
+        # these are all stated and made and then placed on the grid respectively as well as added onto the list of buttons
         self.titletext = customtkinter.CTkLabel(self.sidebar_frame, text="InvenTrack", text_color='#006b5f',
                                                 font=('Berlin Sans FB', 28))
         self.titletext.grid(row=0, column=0, padx=20, pady=(20, 10))
@@ -145,20 +156,20 @@ class MainPage(customtkinter.CTk):
         self.bt_account.grid(row=5, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_account)
 
-        self.set_active_button(self.bt_inven)  # Set the initial active button which is inventory
+        self.set_active_button(self.bt_inven) # Set the initial active button which is inventory
 
-    def configureTreeview(self):
+    def configureTreeview(self): # function to configure the tree view
 
-        self.tree["columns"] = ("Name", "Price", "ID", "Category", "Count")
+        self.tree["columns"] = ("Name", "Price", "ID", "Category", "Count") # set the headers / columns
 
-        self.tree['show'] = 'headings'
+        self.tree['show'] = 'headings' # place headings and make them visible
 
-        self.tree.update_idletasks()
+        self.tree.update_idletasks() # update idle tasks
 
-        for col in ("Price", "ID", "Count"):
-            self.tree.column(col, anchor="center")
+        for col in ("Price", "ID", "Count"): # iterate through 3 specific rows that use numbers
+            self.tree.column(col, anchor="center") # centre anchor the column
 
-        # Define column widths
+        # Define column widths and text alignement
         self.tree.column("Name", width=150, anchor=tk.W)
         self.tree.column("Price", width=100, anchor=tk.CENTER)
         self.tree.column("ID", width=50, anchor=tk.CENTER, )
@@ -176,18 +187,19 @@ class MainPage(customtkinter.CTk):
         style = ThemedStyle(self)
 
         # Set the theme
-        style.set_theme("equilux")
+        style.set_theme("equilux") # set the theme to a dark theme by default (COULD CHANGE LATER)
 
-        # Configure the Treeview colors
+        # Configure the treeview colors
         style.configure("Treeview",
                         background="#2a2d2e",
                         foreground="white",
                         fieldbackground="#2a2d2e")
         style.map('Treeview', background=[('selected', '#22559b')])
 
-        headerFont = tkFont.Font(family="Arial", size=14, weight="bold")
-        entryFont = tkFont.Font(family="Helvetica", size=8)
+        headerFont = tkFont.Font(family="Arial", size=14, weight="bold") # define header font
+        entryFont = tkFont.Font(family="Helvetica", size=8) # define text font for entries/items
 
+        # configure the treeview
         style.configure("Treeview.Heading", font=headerFont)
         style.configure("Treeview", font=entryFont)
         style.configure('Treeview', rowheight=40)
@@ -195,30 +207,28 @@ class MainPage(customtkinter.CTk):
 
 
 
-    def init_inventory_page(self):
-        label = CTkLabel(self.inventory_frame, text="Inventory", text_color=("black", "White"),
+    def init_inventory_page(self): # initialization of the inventory page
+        label = CTkLabel(self.inventoryFrame, text="Inventory", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
 
-        self.tree = ttk.Treeview(self.inventory_frame, height=10)
+        self.tree = ttk.Treeview(self.inventoryFrame, height=10)
         self.tree.grid(column=0, row=2, padx=(45, 45), pady=(0, 30), sticky='nsew')
 
-        # configurations to the columns and rows
-        # this makes the treeview expand to the right
-        self.inventory_frame.grid_rowconfigure(2, weight=0)
-        self.inventory_frame.grid_columnconfigure(0, weight=1)
-        self.inventory_frame.grid_rowconfigure(4, weight=1)
+        # Configurations to the columns and rows
+        # This makes the treeview expand to the right
+        self.inventoryFrame.grid_rowconfigure(2, weight=0)
+        self.inventoryFrame.grid_columnconfigure(0, weight=1)
+        self.inventoryFrame.grid_rowconfigure(4, weight=1)
 
         # Configure the Treeview
         self.configureTreeview()
 
-        #self.tree.bind('<<TreeviewSelect>>', self.selectInvenItem)
-
-        # all the inventory shit
-        self.invenWidgetFrame = customtkinter.CTkFrame(self.inventory_frame, corner_radius=10)
+        # all the inventory stuff
+        self.invenWidgetFrame = customtkinter.CTkFrame(self.inventoryFrame, corner_radius=10)
         self.invenWidgetFrame.grid(column=0, row=4, rowspan=1, sticky='nsew', pady=(0, 30), padx=30)
 
-        self.invenAddLabel = customtkinter.CTkLabel(self.inventory_frame, text="Inventory Management:", font=('Berlin Sans FB', 20))
+        self.invenAddLabel = customtkinter.CTkLabel(self.inventoryFrame, text="Inventory Management:", font=('Berlin Sans FB', 20))
         self.invenAddLabel.grid(column=0, row=3, padx=40, pady=(30,10), sticky="w")
 
         self.addbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Add", height=30,
@@ -237,7 +247,7 @@ class MainPage(customtkinter.CTk):
                                                   width=200, font=('Berlin Sans FB', 15), command=self.clrInvenEntry)
         self.clearbutton.grid(column=3, row=1, pady=10, padx=10)
 
-
+        # The entry boxes and labels
 
         self.inameEntryLabel = customtkinter.CTkLabel(self.invenWidgetFrame, text="Name:")
         self.inameEntryLabel.grid(column=0, row=2, pady=(10,5), padx=20,sticky="w")
@@ -277,6 +287,7 @@ class MainPage(customtkinter.CTk):
         self.countEntry = CTkEntry(self.invenWidgetFrame, corner_radius=10, height=30, width=140)
         self.countEntry.grid(column=4, row=3, padx=10, sticky="w")
 
+        # List of entry boxes
         self.invenboxes = [
             (self.inameEntry, "nameEntry"),
             (self.priceEntry, "priceEntry"),
@@ -285,155 +296,157 @@ class MainPage(customtkinter.CTk):
             (self.countEntry, "countEntry")
         ]
 
-    def init_report_page(self):
-        label = CTkLabel(self.report_frame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 80))
+    def init_report_page(self): # initialise the report page
+        label = CTkLabel(self.reportFrame, text="Report", text_color=("black", "White"), font=('Berlin Sans FB', 80))
         label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
-    def init_statistics_page(self):
-        label = CTkLabel(self.statistics_frame, text="Statistics", text_color=("black", "White"),
+    def init_statistics_page(self): # initialise the statistics page
+        label = CTkLabel(self.statisticsFrame, text="Statistics", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
-    def init_options_page(self):
-        label = CTkLabel(self.options_frame, text="Program Settings", text_color=("black", "White"),
+    def init_options_page(self): # initialise the options page
+        label = CTkLabel(self.optionsFrame, text="Program Settings", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25))
 
-        label2 = CTkLabel(self.options_frame, text="UI Colour: ", text_color=("black", "White"),
+        label2 = CTkLabel(self.optionsFrame, text="UI Colour: ", text_color=("black", "White"),
                           font=('Berlin Sans FB', 40))
         label2.grid(column=0, row=2, padx=(30, 30), pady=(25, 25), sticky="w")
 
-        # Add the rest of the options page widgets here
+        # Options page widgets
         self.appearanceModeOptionemenu = customtkinter.CTkOptionMenu(
-            self.options_frame,
-            values=["Dark", "Light", "System"],
-            command=self.colourChange,
+            self.optionsFrame,
+            values=["Dark", "Light", "System"], # Colour states
+            command=self.colourChange, # Function to change colour
             fg_color="#006b5f",
             dropdown_fg_color="#006b5f",
             button_color="#014f46",
             button_hover_color="#01362f")
         self.appearanceModeOptionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
-        label3 = CTkLabel(self.options_frame, text="UI Scale:", text_color=("black", "White"),
+        label3 = CTkLabel(self.optionsFrame, text="UI Scale:", text_color=("black", "White"),
                           font=('Berlin Sans FB', 40))
         label3.grid(column=0, row=4, padx=(30, 30), pady=(25, 25), sticky="w")
 
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.options_frame,
-                                                               values=["80%", "90%", "100%", "110%", "120%"],
-                                                               command=self.change_scaling_event,
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.optionsFrame,
+                                                               values=["80%", "90%", "100%", "110%", "120%"], # scales
+                                                               command=self.change_scaling_event, # function for scale
                                                                fg_color="#006b5f",
                                                                dropdown_fg_color="#006b5f",
                                                                button_color="#014f46",
                                                                button_hover_color="#01362f")
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
-    def init_account_page(self):
-        label = CTkLabel(self.account_frame, text="Account Details", text_color=("black", "White"),
+    def init_account_page(self): # Initialise the accounts page
+        label = CTkLabel(self.accountFrame, text="Account Details", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25), columnspan=1)
 
-        self.userlabel = CTkLabel(self.account_frame, text="Username: ", text_color=("black", "White"),
+        self.userlabel = CTkLabel(self.accountFrame, text="Username: ", text_color=("black", "White"),
                                   font=('Berlin Sans FB', 60))
         self.userlabel.grid(column=0, row=2, sticky="w", padx=(30, 5))
 
-        self.userlabel2 = CTkLabel(self.account_frame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
+        self.userlabel2 = CTkLabel(self.accountFrame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
         self.userlabel2.grid(column=1, row=2, sticky="w")
 
-        self.namelabel = CTkLabel(self.account_frame, text="Fullname: ", text_color=("black", "White"),
+        self.namelabel = CTkLabel(self.accountFrame, text="Fullname: ", text_color=("black", "White"),
                                   font=('Berlin Sans FB', 60))
         self.namelabel.grid(column=0, row=3, sticky="w", padx=(30, 5))
 
-        self.namelabel2 = CTkLabel(self.account_frame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
+        self.namelabel2 = CTkLabel(self.accountFrame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
         self.namelabel2.grid(column=1, row=3, sticky="w")
 
-    def show_frame(self, frame):
-        for f in [self.inventory_frame, self.report_frame, self.statistics_frame, self.options_frame,
-                  self.account_frame]:
-            f.grid_remove()
+    def show_frame(self, frame): # Function to show / hide frames, takes in a frame to be used
+        # for loop to remove all frames
+        for f in [self.inventoryFrame, self.reportFrame, self.statisticsFrame, self.optionsFrame,
+                  self.accountFrame]:
+            f.grid_remove() # Remove from grid (NOT DELETE)
         frame.grid(column=1, row=0, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
-        self.current_page = frame
+        self.current_page = frame # Sets the current frame to the frame put into function
 
 
-    def goInventoryPage(self):
-        self.set_active_button(self.bt_inven)
-        self.show_frame(self.inventory_frame)
-        self.current_page = self.inventory_frame
+    def goInventoryPage(self): # Function to function as the opening of the page
+        self.set_active_button(self.bt_inven) # Set the button to the active button
+        self.show_frame(self.inventoryFrame) # Display the frame
+        self.current_page = self.inventoryFrame # set the current page
 
         # Clear previous items in the Treeview
-        self.tree.delete(*self.tree.get_children())
+        self.tree.delete(*self.tree.get_children()) # delete the items within the treeview
         global idata
-        idata = (f'{userLogged}_Inventory.csv')
+        idata = (f'{userLogged}_Inventory.csv') # define the name of the current users csv
         global invenData
-        invenData = []
+        invenData = [] # create a placeholder array
         print(idata)
 
-        if not os.path.exists(idata):
+        if not os.path.exists(idata): # check if the inventory for the user doesnt exist and if it doesnt make one
             with open(idata, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(invenheaders)
+                writer.writerow(invenheaders) # write the headers for inventory
                 #print(f"new inventory csv file: {idata}")
         else:
             #print(f"inventory csv file already exists: {idata}")
             global listofIDs
-            listofIDs = []
-            with open(idata, 'r') as file:
+            listofIDs = [] # placeholder array for the list of ids of items
+            with open(idata, 'r') as file: # read the already created iventory data for the current user
                 reader = csv.reader(file)
                 next(reader)  # skip header
 
-                for row in reader:
+                for row in reader: # get the data and save into its arrays
                     inames = row[0]
                     iprice = row[1]
                     iid = row[2]
                     icategory = row[3]
                     icount = row[4]
 
-                    listofIDs.append([iid])
-                    invenData.append([inames, iprice, iid, icategory, icount])
+                    listofIDs.append([iid]) # append the data into the list of ids array
+                    invenData.append([inames, iprice, iid, icategory, icount]) # make the 2D array with all the data
 
             # Add items from records to the Treeview
             for record in invenData:
                 self.tree.insert("", "end", values=(record[0], ("$" + record[1]), record[2], record[3], record[4]))
 
-    def is_numeric(self, var):
-        if isinstance(var, (int, float)):
+    def is_numeric(self, var): # function to check for specific variables and return true or false depending
+        if isinstance(var, (int, float)): # if variable is an integer or a float return true
             return True
-        if isinstance(var, str):
+        if isinstance(var, str): # if the variable is a string try to print it as a float and if possible return true
             try:
                 float(var)
                 return True
-            except ValueError:
+            except ValueError: # if it's not an int or float and cant be turned into a float from a string return false
                 return False
-        return False
+        return False # default the return to false
 
     def AddToInven(self):
         # Loop through entries and update border colors
         for entry, name in self.invenboxes:
-            if entry.get() == "":
+            if entry.get() == "": # if boxes are empty make them red / highlighted
                 entry.configure(border_color="red")
             else:
-                entry.configure(border_color="gray")
+                entry.configure(border_color="gray") # if they are not empty apply default colour
 
         print(listofIDs)
         if (self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and
-                self.categoryEntry.get() and self.countEntry.get()):
+                self.categoryEntry.get() and self.countEntry.get()): # if all boxes have entries
 
-            itemName = self.inameEntry.get()
+            itemName = self.inameEntry.get() # define name
 
-            if self.is_numeric(self.priceEntry.get()):
-                self.priceEntry.configure(border_color="gray")
-                itemPrice = self.priceEntry.get()
+            if self.is_numeric(self.priceEntry.get()): # check if price is int or float
+                self.priceEntry.configure(border_color="gray") # clear past error if present
+                itemPrice = self.priceEntry.get() # define the price
 
+                # check if the entered ID is not found in the first elements of tuples in the list of current IDs
                 if self.IDEntry.get() not in [id[0] for id in listofIDs]:
-                    self.IDEntry.configure(border_color="gray")
-                    itemID = self.IDEntry.get()
+                    self.IDEntry.configure(border_color="gray") # clear past error if present
+                    itemID = self.IDEntry.get() # define variables for ID and Category
                     itemCategory = self.categoryEntry.get()
 
-                    if self.countEntry.get().isnumeric() == True:
-                        self.countEntry.configure(border_color="gray")
-                        itemCount = self.countEntry.get()
-                        newItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+                    if self.countEntry.get().isnumeric() == True: # if count is an integer
+                        self.countEntry.configure(border_color="gray") # clear error if present
+                        itemCount = self.countEntry.get() # define count
+                        newItem = [itemName, itemPrice, itemID, itemCategory, itemCount] # define 2D array
 
-                        with open(idata, 'w', newline='') as file:
+                        with open(idata, 'w', newline='') as file: # write the header, current data, and new item
                             writer = csv.writer(file)
                             writer.writerow(invenheaders)
                             print(headers)
@@ -442,31 +455,31 @@ class MainPage(customtkinter.CTk):
                             writer.writerow(newItem)
                             print(newItem)
 
-                        self.clrInvenEntry()
-                        self.goInventoryPage()
+                        self.clrInvenEntry() # clear the boxes
+                        self.goInventoryPage() # reload the page / data
 
                     else:
-                        self.countEntry.configure(border_color="red")
+                        self.countEntry.configure(border_color="red") # error with entry
                 else:
-                    self.IDEntry.configure(border_color="red")
+                    self.IDEntry.configure(border_color="red") # error with entry
             else:
-                self.priceEntry.configure(border_color="red")
+                self.priceEntry.configure(border_color="red") # error with entry
 
 
-    def clrInvenEntry(self):
+    def clrInvenEntry(self): # clear entries in boxes
         for entry, name in self.invenboxes:
                 entry.delete(0, 'end')
 
-        for entry, name in self.invenboxes:
+        for entry, name in self.invenboxes: # make boxes gray to clear error sign
             entry.configure(border_color="gray")
 
 
-    def delInvenItem(self):
+    def delInvenItem(self): # delete inventory item function
         global invenData
         global idata
 
-        selected_item = self.tree.selection()
-        if selected_item:  # If something is selected
+        selected_item = self.tree.selection() # get the selection
+        if selected_item:  # if something is selected
             item = self.tree.item(selected_item[0])
             row_data = item['values']
 
@@ -474,18 +487,18 @@ class MainPage(customtkinter.CTk):
             self.selected_row = row_data
 
             print(f"Selected row: {self.selected_row}")
-            #print(f"invenData before deletion: {invenData}")
+            #print(f"invenData before deletion {invenData}")
 
             # delete the item from the treeview
             self.tree.delete(selected_item[0])
 
-            # Remove the item from the invenData list
+            # remove the item from the invenData list
             invenData = [row for row in invenData if row[2] != str(self.selected_row[2])]
             # ^ make new list of lists of every row in invenData except if the ID matches the selected row's ID
 
-            #print(f"invenData after deletion: {invenData}")
+            #print(f"invenData after deletion {invenData}")
 
-            # Update the CSV file
+            # update the CSV file
             with open(idata, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(invenheaders)
@@ -494,7 +507,7 @@ class MainPage(customtkinter.CTk):
 
             print(f"Deleted item: {self.selected_row}")
 
-    def editInvenItem(self):
+    def editInvenItem(self): # edit the item
         selected_item = self.tree.selection()
         if selected_item:
             item = self.tree.item(selected_item[0])
@@ -520,7 +533,10 @@ class MainPage(customtkinter.CTk):
         else:
             print("No item selected for editing")
 
-    def confirmEdit(self):
+    def confirmEdit(self): # confirm the edit
+        #
+        # THIS JUST USES THE ABOVE FUNCTION IN A SLIGHTLY DIFFERENT WAY
+        #
         self.confirmbutton.destroy()
         if (self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and
                 self.categoryEntry.get() and self.countEntry.get()):
@@ -539,22 +555,22 @@ class MainPage(customtkinter.CTk):
                     if self.countEntry.get().isnumeric():
                         self.countEntry.configure(border_color="gray")
                         itemCount = self.countEntry.get()
-                        editedItem = [itemName, itemPrice, itemID, itemCategory, itemCount]
+                        editedItem = [itemName, itemPrice, itemID, itemCategory, itemCount] # make the new
 
                         print(f"Edited item: {editedItem}")
                         print(f"Selected row: {self.selected_row}")
                         print(f"Current invenData: {invenData}")
 
                         # Find the index of the item to be edited in invenData
-                        index_to_edit = next(
-                            (index for (index, d) in enumerate(invenData) if d[2] == str(self.selected_row[2])), None)
+                        indexToEdit = next((index for (index, d) in enumerate(invenData) if d[2] == str(self.selected_row[2])), None)
 
-                        if index_to_edit is not None:
-                            print(f"Found item at index: {index_to_edit}")
-                            # Replace the old item with the edited item
-                            invenData[index_to_edit] = editedItem
+                        if indexToEdit is not None: # if there is an item with that index
+                            print(f"Found item at index: {indexToEdit}")
 
-                            # Update the CSV file
+                            # replace the old item with the edited item
+                            invenData[indexToEdit] = editedItem
+
+                            # update the CSV file
                             with open(idata, 'w', newline='') as file:
                                 writer = csv.writer(file)
                                 writer.writerow(invenheaders)
@@ -579,19 +595,19 @@ class MainPage(customtkinter.CTk):
 
     def goReportPage(self):
         self.set_active_button(self.bt_report)
-        self.show_frame(self.report_frame)
-        self.current_page = self.report_frame
+        self.show_frame(self.reportFrame)
+        self.current_page = self.reportFrame
 
     def goStatisticsPage(self):
         self.set_active_button(self.bt_stats)
-        self.show_frame(self.statistics_frame)
-        self.current_page = self.statistics_frame
+        self.show_frame(self.statisticsFrame)
+        self.current_page = self.statisticsFrame
 
     def goOptionsPage(self):
         # Change frame, Active Button to Options Page
         self.set_active_button(self.bt_options)
-        self.show_frame(self.options_frame)
-        self.current_page = self.options_frame
+        self.show_frame(self.optionsFrame)
+        self.current_page = self.optionsFrame
 
         # set
         self.appearanceModeOptionemenu.set(customtkinter.get_appearance_mode())
@@ -608,8 +624,8 @@ class MainPage(customtkinter.CTk):
     def goAccountPage(self):
         # Change frame, Active Button to Account Page
         self.set_active_button(self.bt_account)
-        self.show_frame(self.account_frame)
-        self.current_page = self.account_frame
+        self.show_frame(self.accountFrame)
+        self.current_page = self.accountFrame
 
         # Change labels to display user data
         self.userlabel2.configure(text=userLogged)
@@ -625,7 +641,7 @@ class MainPage(customtkinter.CTk):
                 button.configure(hover_color=buttonHoverColour)
 
     def clear_frame(self):
-        for widget in self.main_container.winfo_children():
+        for widget in self.mainContainer.winfo_children():
             widget.destroy()
         self.options_container = None
         self.scaling_optionemenu = None
@@ -778,8 +794,12 @@ class SignIn(customtkinter.CTkToplevel):
         self.btn = CTkButton(self.frame, text="Login", command=logHandler, fg_color="#30a474", hover_color="#1c5c41")
         self.btn.grid(column=1, row=7, columnspan=4, pady=(5, 20), padx=(50, 230))
 
-        self.btn = CTkButton(self.frame, text="Register", command=regHandler)
-        self.btn.grid(column=2, row=7, columnspan=4, pady=(5, 20), padx=(50, 50))
+        tooltip_1 = CTkToolTip(self.btn, message="Log into your Account")
+
+        self.btn2 = CTkButton(self.frame, text="Register", command=regHandler)
+        self.btn2.grid(column=2, row=7, columnspan=4, pady=(5, 20), padx=(50, 50))
+
+        tooltip_1 = CTkToolTip(self.btn2, message="Register a New Account")
 
         # Binding the enter key to the function
         self.userEntry.bind('<Return>', enterDetails)
