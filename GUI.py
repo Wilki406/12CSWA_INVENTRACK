@@ -593,120 +593,117 @@ class MainPage(customtkinter.CTk): # Class for main window
             return
 
 
-    def goReportPage(self):
-        self.set_active_button(self.bt_report)
-        self.show_frame(self.reportFrame)
-        self.current_page = self.reportFrame
+    def goReportPage(self): # start the report page
+        self.set_active_button(self.bt_report) # set button
+        self.show_frame(self.reportFrame) # show the frame
+        self.current_page = self.reportFrame # set current page to this one
 
-    def goStatisticsPage(self):
+    def goStatisticsPage(self): # start the statistics page
+        # change the frame, button and page
         self.set_active_button(self.bt_stats)
         self.show_frame(self.statisticsFrame)
         self.current_page = self.statisticsFrame
 
-    def goOptionsPage(self):
-        # Change frame, Active Button to Options Page
+    def goOptionsPage(self): # navigate to and start the options page
+        # change the frame, button and page
         self.set_active_button(self.bt_options)
         self.show_frame(self.optionsFrame)
         self.current_page = self.optionsFrame
 
-        # set
+        # sets the widget to the current appearance mode
         self.appearanceModeOptionemenu.set(customtkinter.get_appearance_mode())
 
-        # i cant remember why this is here
+        # i cant remember why this is here but i think i need it
         for row in records:
             if idNum == row[0] and userLogged == row[1]:
-                startingScale = row[5]
-                meow = float(startingScale)
+                startingScale = row[5] # get the scale
+                meow = float(startingScale) # turn it into a float
+                # turn it into a string with a % at the end after its been turned into a integer and multiple
                 meow2 = str(int(meow * 100)) + "%"
                 self.scaling_optionemenu.set(meow2)
                 break # for efficiency so it doesn't go through more rows after finding needed row
 
-    def goAccountPage(self):
-        # Change frame, Active Button to Account Page
+    def goAccountPage(self): # go to the account page
+        # change the frame, button and page
         self.set_active_button(self.bt_account)
         self.show_frame(self.accountFrame)
         self.current_page = self.accountFrame
 
-        # Change labels to display user data
+        # Change labels to display current user data
         self.userlabel2.configure(text=userLogged)
         self.namelabel2.configure(text=userFullname)
 
-    def set_active_button(self, active_button):
-        for button in self.sidebar_buttons:
+    def set_active_button(self, active_button): # function to set the active button using a efficient for loop
+        for button in self.sidebar_buttons: # iterate through the buttons to check what one is the active button
             if button == active_button:
-                button.configure(fg_color="#006b5f")
+                button.configure(fg_color="#006b5f") # change the colours
                 button.configure(hover_color="#006b5f")
-            else:
+            else: # change them to default if not
                 button.configure(fg_color=buttonColour)
                 button.configure(hover_color=buttonHoverColour)
 
-    def clear_frame(self):
-        for widget in self.mainContainer.winfo_children():
-            widget.destroy()
-        self.options_container = None
-        self.scaling_optionemenu = None
-
-    def colourChange(self, new_appearance_mode: str):  # Change in app from input
-        customtkinter.set_appearance_mode(new_appearance_mode.lower())
-        self.update()
-        self.state("zoomed")
-        if new_appearance_mode != startingUIC:
+    def colourChange(self, new_appearance_mode: str):  # change UIC
+        customtkinter.set_appearance_mode(new_appearance_mode.lower()) # change it
+        self.update() # update window
+        self.state("zoomed") # zoom back in to full screen
+        if new_appearance_mode != startingUIC: # if it is a new entry
             for i, row in enumerate(records):
                 if userLogged in row[1] and idNum in row[0]:
-                    records[i][6] = new_appearance_mode.lower()
+                    records[i][6] = new_appearance_mode.lower() # replace the data entry in spot to have the new UIC
 
-            with open(data, 'w', newline='') as file:
+            with open(data, 'w', newline='') as file: # write to the data
                 writer = csv.writer(file)
-                writer.writerow(headers)
+                writer.writerow(headers) # write the headers
                 print(headers)
-                writer.writerows(records)
+                writer.writerows(records) # and new data
                 print(records)
 
-    def change_scaling_event(self, inputedScale: str):
+    def change_scaling_event(self, inputedScale: str): # change UI scale
         try:
             new_scaling_float = int(inputedScale.replace("%", "")) / 100
-            customtkinter.set_widget_scaling(new_scaling_float)
+            customtkinter.set_widget_scaling(new_scaling_float) # apply new scale
 
-            for i, row in enumerate(records):
+            for i, row in enumerate(records): # change scale in place in records / data
                 if userLogged in row[1] and idNum in row[0]:
                     records[i][5] = str(new_scaling_float)
 
-            with open(data, 'w', newline='') as file:
+            with open(data, 'w', newline='') as file: # write the new records and headers
                 writer = csv.writer(file)
                 writer.writerow(headers)
                 writer.writerows(records)
 
-            self.show_frame(self.current_page)
+            self.show_frame(self.current_page) # re show the frame
 
             return
 
         except Exception as e:
             print(f"Error in change_scaling_event: {e}")
 
-    def startUserScale(self, scale):  # Change at program run from data
-        meow = float(scale)
-        customtkinter.set_widget_scaling(meow)
+    def startUserScale(self, scale):  # Change UIC at program run from data
+        meow = float(scale) # modify it
+        customtkinter.set_widget_scaling(meow) # scale it
 
 
-class SignIn(customtkinter.CTkToplevel):
+class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
     def __init__(self, signApp):
         super().__init__()
         self.app = signApp
-        self.title("Inventrack")
-        self.geometry("750x420")
-        self.resizable(width=False, height=False)
-        self.wm_iconbitmap('Images/invenico.ico')  # Set icon for SignIn window
+        self.title("InvenTrack") # title
+        self.geometry("750x420") # window size
+        self.resizable(width=False, height=False) # cant resize
+        self.wm_iconbitmap('Images/invenico.ico')  # set icon for SignIn window
 
         global userLogged
         userLogged = ""
         showstate = "*"
 
-        def hidHandler():
+
+        def hidHandler(): # function for hiding the password entry box entries
             global showstate
             showstate = self.rad.get()
             self.passwordEntry.configure(show=showstate)
 
-        def clearEntries():
+        def clearEntries(): # clear the entries in the box
             self.passwordEntry.delete(0, END)
             self.userEntry.delete(0, END)
 
@@ -715,9 +712,9 @@ class SignIn(customtkinter.CTkToplevel):
 
             self.labelsign.configure(text="")
 
-        def logHandler():
+        def logHandler(): # big function to validate and allow for log in, into the ap
             global records, usernameLists, idRank
-            records, usernameLists, idRank = loadData(data)
+            records, usernameLists, idRank = loadData(data) # load new data
             if self.userEntry.get() == "" and self.passwordEntry.get() == "":
                 self.labelsign.configure(text="Enter your details", text_color="red")
             elif self.userEntry.get() == "":
@@ -748,8 +745,10 @@ class SignIn(customtkinter.CTkToplevel):
                         #print(startingUIC)
                         #print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
+                        # close the window
                         self.withdraw()
                         self.app.deiconify()
+
                         self.app.state("zoomed")  # Zoom in
                         self.app.startUserScale(startingScale)  # Factor in scale
                         self.app.colourChange(startingUIC) # Factor in UIC
@@ -762,10 +761,12 @@ class SignIn(customtkinter.CTkToplevel):
         def regHandler():
             clearEntries()
             SignInWindow.withdraw()
+
+            # open new window
             registerWindow = Registry(SignInWindow)
             registerWindow.mainloop()
 
-        def enterDetails(event=None):
+        def enterDetails(event=None): #
             if self.userEntry.get() and self.passwordEntry.get():
                 logHandler()
             else:
@@ -806,7 +807,7 @@ class SignIn(customtkinter.CTkToplevel):
         self.passwordEntry.bind('<Return>', enterDetails)
 
 
-class Registry(customtkinter.CTkToplevel):
+class Registry(customtkinter.CTkToplevel): # register function
     def __init__(self, sign_in_window):
         super().__init__()
         logFeedback = ""
@@ -815,19 +816,19 @@ class Registry(customtkinter.CTkToplevel):
         self.frame = CTkFrame(self, width=500, height=400, fg_color="#9B9B9B")
         self.frame.grid()
 
-        def regBack():
+        def regBack(): # go back to sign in
             loadData(data)
             self.withdraw()
             self.sign_in_window.deiconify()
 
-        def checkSpace(string):
+        def checkSpace(string): # function to check how many spaces in a string
             count = 0
             for i in range(0, len(string)):
                 if string[i] == " ":
                     count += 1
             return count
 
-        def regSignup():
+        def regSignup(): # this is a big function to validate
             regboxes = [
                 (self.nameEntry, "nameEntry"),
                 (self.usernameEntry, "usernameEntry"),
@@ -897,8 +898,8 @@ class Registry(customtkinter.CTkToplevel):
             else:
                 self.labelsign.configure(text="Enter Details", text_color="red")
 
-        self.title("Register")
-        self.geometry("700x400")
+        self.title("Register") # title
+        self.geometry("700x400") # window size
 
         self.label = CTkLabel(self.frame, text="Create an account", text_color="black", font=('Berlin Sans FB', 30))
         self.label.grid(column=1, row=1, padx=(250, 250), pady=(30, 25), columnspan=2)
@@ -932,7 +933,11 @@ class Registry(customtkinter.CTkToplevel):
         self.btn = CTkButton(self.frame, text="Login", command=regBack)
         self.btn.grid(column=1, row=9, padx=(250, 250), pady=(0, 50), columnspan=2)
 
-
+# Create an instance of the main page class
 app = MainPage()
+
+# Create instance of sign in class
 SignInWindow = SignIn(app)
+
+# Start the main event loop for the sign in instance.
 SignInWindow.mainloop()
