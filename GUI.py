@@ -16,6 +16,7 @@ from CTkToolTip import *
 #  data encryption, statistics page, report page,
 #  CURRENT BUGS: confirm edit with cleared boxes
 #  FIXED BUGS:
+#    make new csv when get code
 #    New User 100 in scale instead of 1.0
 #    RELOAD DATA AFTER REG
 #    ISNUMERIC IS ONLY INTEGERS NOT FLOATS
@@ -30,13 +31,20 @@ startingScale = "1"
 startingUIC = "Dark"
 
 # Defining header files for csv files and define the user data csv file
-data = 'dataforsat.csv'
+data = 'userdata.csv'
 headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
+def createCSV():
+    if not os.path.exists(data):  # check if the  for the user doesnt exist and if it doesnt make one
+        with open(data, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(headers)  # write the headers for user data
 
+createCSV()
 # Load data function for user log in data
 def loadData(data):
+
     # Define placeholder arrays to be defined later
     records = []
     idRank = []
@@ -871,7 +879,11 @@ class Registry(customtkinter.CTkToplevel): # register function
                     if username not in usernameLists:
 
                         print("username is unique")
-                        userDesRank = idRank[-1] + 1
+                        try:
+                            userDesRank = idRank[-1] + 1
+                        except:
+                            userDesRank = 1
+
                         scaleF = 1.0
                         uiC = "dark"
                         newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC]
