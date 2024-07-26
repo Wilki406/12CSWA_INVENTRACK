@@ -47,17 +47,17 @@ Install required libraries:
 System Requirements:
 
 
--Windows 10 or later
+- Windows 10 or later
 
--4 core, 2 GHz, 64-bit (Intel Core i3 4430 or AMD Ryzen A8-7600) or better.
+- 4 core, 2 GHz, 64-bit (Intel Core i3 4430 or AMD Ryzen A8-7600) or better.
 
--8GB of RAM or more.
+- 8GB of RAM or more.
 
--5GB of Storage or more.
+- 5GB of Storage or more.
 
--No internet connection required.
+- No internet connection required.
 
--Keyboard is required.
+- Keyboard is required.
 
--Mouse or trackpad is required.
+- Mouse or trackpad is required.
 
