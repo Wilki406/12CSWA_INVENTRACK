@@ -32,19 +32,32 @@ you can view your account details by going to the Account page.
 
 Install required libraries:
 
-customtkinter
-PIL
-tkinter
-ttkthemes
-CTkToolTip
+
+- customtkinter
+
+- PIL
+
+- tkinter
+
+- ttkthemes
+
+- CTkToolTip
+
 
 System Requirements:
 
-Windows 10 or later
-4 core, 2 GHz, 64-bit (Intel Core i3 4430 or AMD Ryzen A8-7600) or better.
-8GB of RAM or more.
-5GB of Storage or more.
-No internet connection required.
-Keyboard is required.
-Mouse or trackpad is required.
+
+-Windows 10 or later
+
+-4 core, 2 GHz, 64-bit (Intel Core i3 4430 or AMD Ryzen A8-7600) or better.
+
+-8GB of RAM or more.
+
+-5GB of Storage or more.
+
+-No internet connection required.
+
+-Keyboard is required.
+
+-Mouse or trackpad is required.
 
