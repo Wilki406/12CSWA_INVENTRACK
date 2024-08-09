@@ -11,10 +11,6 @@ from ttkthemes import ThemedStyle
 import os
 from CTkToolTip import *
 
-# Modifications:
-# list of IDs is appended to when item is added to inventory and id.get not in list of IDs if statement fixed
-
-
 # Defining variables for default scale and ui colour settings
 startingScale = "1"
 startingUIC = "Dark"
@@ -231,11 +227,14 @@ class MainPage(customtkinter.CTk): # Class for main window
         self.invenAddLabel.grid(column=0, row=3, padx=40, pady=(30,10), sticky="w")
 
         self.addbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Add", height=30,
-                                                 width=200, font=('Berlin Sans FB', 15), command=self.AddToInven)
+                                                 width=200, font=('Berlin Sans FB', 15), command=self.AddToInven,
+                                                             fg_color='#00b341',
+                                                             hover_color='#005720')
         self.addbutton.grid(column=0, row=1, pady=10, padx=10)
 
         self.removebutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Remove", height=30,
-                                                    width=200, font=('Berlin Sans FB', 15),command=self.delInvenItem)
+                                                    width=200, font=('Berlin Sans FB', 15),command=self.delInvenItem,
+                                                    fg_color='#ab0000',hover_color='#6b0101')
         self.removebutton.grid(column=1, row=1, pady=10, padx=10)
 
         self.editbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Edit", height=30,
@@ -243,8 +242,13 @@ class MainPage(customtkinter.CTk): # Class for main window
         self.editbutton.grid(column=2, row=1, pady=10, padx=10)
 
         self.clearbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Clear", height=30,
-                                                  width=200, font=('Berlin Sans FB', 15), command=self.clrInvenEntry)
+                                                  width=200, font=('Berlin Sans FB', 15), command=self.clrInvenEntry,
+                                                   fg_color='#707070',hover_color='#3d3d3d')
         self.clearbutton.grid(column=3, row=1, pady=10, padx=10)
+
+        self.ogc_fg = self.clearbutton.cget("fg_color")
+        self.ogc_hov = self.clearbutton.cget("hover_color")
+
 
         # The entry boxes and labels
 
@@ -355,6 +359,9 @@ class MainPage(customtkinter.CTk): # Class for main window
 
         self.namelabel2 = CTkLabel(self.accountFrame, text="", text_color="#006b5f", font=('Berlin Sans FB', 60))
         self.namelabel2.grid(column=1, row=3, sticky="w")
+
+        #self.signout = CTkButton(self.accountFrame, text="Sign Out", fg_color='#ab0000', hover_color='#6b0101', command='')
+        #self.signout.grid(column=0, row=4, sticky="w", padx=(30, 5), pady=(25,0))
 
     def show_frame(self, frame): # Function to show / hide frames, takes in a frame to be used
         # for loop to remove all frames
@@ -474,12 +481,12 @@ class MainPage(customtkinter.CTk): # Class for main window
             self.editstate = False
             for entry, name in self.invenboxes:
                     entry.delete(0, 'end')
-            self.clearbutton.configure(text="Clear")
+            self.clearbutton.configure(text="Clear", fg_color=self.ogc_fg, hover_color=self.ogc_hov)
             self.confirmbutton.destroy()
             self.goInventoryPage()
 
         else:
-            self.clearbutton.configure(text="Clear")
+            self.clearbutton.configure(text="Clear", fg_color=self.ogc_fg, hover_color=self.ogc_hov)
             for entry, name in self.invenboxes:
                     entry.delete(0, 'end')
 
@@ -529,7 +536,7 @@ class MainPage(customtkinter.CTk): # Class for main window
             return
         else:
             self.editstate = True
-            self.clearbutton.configure(text="Cancel Edit")
+            self.clearbutton.configure(text="Cancel Edit", fg_color='#ab0000',hover_color='#6b0101')
 
             selected_item = self.tree.selection()
             if selected_item:
@@ -551,7 +558,10 @@ class MainPage(customtkinter.CTk): # Class for main window
                 self.confirmbutton = customtkinter.CTkButton(self.invenWidgetFrame, corner_radius=10, text="Confirm Edit",
                                                              height=30,
                                                              width=200, font=('Berlin Sans FB', 15),
-                                                             command=self.confirmEdit)
+                                                             command=self.confirmEdit,
+                                                             fg_color='#00b341',
+                                                             hover_color='#005720')
+
                 self.confirmbutton.grid(column=4, row=1, pady=10, padx=10)
             else:
                 print("No item selected for editing")
