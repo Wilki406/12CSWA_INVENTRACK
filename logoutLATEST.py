@@ -375,10 +375,28 @@ class MainPage(customtkinter.CTk):
 
     def signOut(self):
         self.withdraw()  # Hide the main window
-        self.destroy()  # Destroy the main window
 
-        # Create and show a new SignIn window
-        self.sign_in_window.deiconify()
+        self.goInventoryPage()
+
+        self.clear_user_data()
+        # Create a new SignIn window instead of showing the old one
+        new_sign_in_window = SignIn(self)
+        new_sign_in_window.mainloop()
+
+
+    def clear_user_data(self):
+        # Clear any user-specific data
+        global userLogged, userFullname, idNum, startingScale, startingUIC
+        userLogged = ""
+        userFullname = ""
+        idNum = ""
+        startingScale = "1"
+        startingUIC = "Dark"
+
+        self.startUserScale(1)
+        customtkinter.set_appearance_mode("Dark")
+
+
 
     def show_frame(self, frame): # Function to show / hide frames, takes in a frame to be used
         # for loop to remove all frames
@@ -739,8 +757,8 @@ class MainPage(customtkinter.CTk):
         customtkinter.set_widget_scaling(meow) # scale it
 
 
-class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
-    def __init__(self, signApp):
+class SignIn(customtkinter.CTkToplevel):
+    def __init__(self, signApp=None):
         super().__init__()
         self.app = signApp
         self.title("InvenTrack") # title
@@ -748,37 +766,50 @@ class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
         self.resizable(width=False, height=False) # cant resize
         self.wm_iconbitmap('Images/invenico.ico')  # set icon for SignIn window
 
+        self.after_id = None
+
         global userLogged
         userLogged = ""
         showstate = "*"
 
+        def destroy(self):
+            if self.after_id:
+                self.after_cancel(self.after_id)
+            super().destroy()
+
+        def Mainback(self):
+            self.siuserEntry.delete(0, END)
+            self.sipasswordEntry.delete(0, END)
+
+            self.siuserEntry.configure(placeholder_text="Username")
+            self.sipasswordEntry.configure(placeholder_text="Password")
 
         def hidHandler(): # function for hiding the password entry box entries
             global showstate
             showstate = self.rad.get()
-            self.passwordEntry.configure(show=showstate)
+            self.sipasswordEntry.configure(show=showstate)
 
         def clearEntries(): # clear the entries in the box
-            self.passwordEntry.delete(0, END)
-            self.userEntry.delete(0, END)
+            self.sipasswordEntry.delete(0, END)
+            self.siuserEntry.delete(0, END)
 
-            self.passwordEntry.configure(placeholder_text="Password")
-            self.userEntry.configure(placeholder_text="Username")
+            self.sipasswordEntry.configure(placeholder_text="Password")
+            self.siuserEntry.configure(placeholder_text="Username")
 
             self.labelsign.configure(text="")
 
         def logHandler(): # big function to validate and allow for log in, into the ap
             global records, usernameLists, idRank
             records, usernameLists, idRank = loadData(data) # load new data
-            if self.userEntry.get() == "" and self.passwordEntry.get() == "":
+            if self.siuserEntry.get() == "" and self.sipasswordEntry.get() == "":
                 self.labelsign.configure(text="Enter your details", text_color="red")
-            elif self.userEntry.get() == "":
+            elif self.siuserEntry.get() == "":
                 self.labelsign.configure(text="Enter your username", text_color="red")
-            elif self.passwordEntry.get() == "":
+            elif self.sipasswordEntry.get() == "":
                 self.labelsign.configure(text="Enter your password", text_color="red")
             else:
                 for row in records:
-                    if self.userEntry.get() == row[1] and self.passwordEntry.get() == row[2]:
+                    if self.siuserEntry.get() == row[1] and self.sipasswordEntry.get() == row[2]:
                         fName = row[3]
                         lName = row[4]
 
@@ -796,9 +827,6 @@ class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
 
                         global idNum
                         idNum = row[0]
-
-                        #print(startingUIC)
-                        #print(f"Sign in Successful, You are user {userLogged} {fName} {lName}!")
 
                         # close the window
                         self.withdraw()
@@ -822,7 +850,7 @@ class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
             registerWindow.mainloop()
 
         def enterDetails(event=None): #
-            if self.userEntry.get() and self.passwordEntry.get():
+            if self.siuserEntry.get() and self.sipasswordEntry.get():
                 logHandler()
             else:
                 self.labelsign.configure(text="Please enter both username and password", text_color="red")
@@ -834,11 +862,11 @@ class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
         self.logoLabel = CTkLabel(self.frame, image=self.logo1, text="", width=1, height=1)
         self.logoLabel.grid(column=1, row=1, padx=(180, 200), pady=(0, 0), columnspan=4)
 
-        self.userEntry = CTkEntry(self.frame, placeholder_text="Username", height=30, width=280)
-        self.userEntry.grid(column=1, row=3, columnspan=4, pady=(0, 10))
+        self.siuserEntry = CTkEntry(self.frame, placeholder_text="Username", height=30, width=280)
+        self.siuserEntry.grid(column=1, row=3, columnspan=4, pady=(0, 10))
 
-        self.passwordEntry = CTkEntry(self.frame, placeholder_text="Password", show=showstate, height=30, width=280)
-        self.passwordEntry.grid(column=1, row=4, columnspan=4, pady=(0, 10))
+        self.sipasswordEntry = CTkEntry(self.frame, placeholder_text="Password", show=showstate, height=30, width=280)
+        self.sipasswordEntry.grid(column=1, row=4, columnspan=4, pady=(0, 10))
 
         self.rad = CTkCheckBox(self.frame, border_color="black", text="Show password", command=hidHandler,
                                onvalue="", offvalue="*")
@@ -858,8 +886,9 @@ class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
         tooltip_1 = CTkToolTip(self.btn2, message="Register a New Account")
 
         # Binding the enter key to the function
-        self.userEntry.bind('<Return>', enterDetails)
-        self.passwordEntry.bind('<Return>', enterDetails)
+        self.siuserEntry.bind('<Return>', enterDetails)
+        self.sipasswordEntry.bind('<Return>', enterDetails)
+
 
 
 class Registry(customtkinter.CTkToplevel): # register function
@@ -887,8 +916,8 @@ class Registry(customtkinter.CTkToplevel): # register function
             regboxes = [
                 (self.nameEntry, "nameEntry"),
                 (self.usernameEntry, "usernameEntry"),
-                (self.passwordEntry, "passwordEntry"),
-                (self.rePasswordEntry, "rePasswordEntry")
+                (self.sipasswordEntry, "sipasswordEntry"),
+                (self.resipasswordEntry, "resipasswordEntry")
             ]
 
             # Loop through entries and update border colors
@@ -898,11 +927,11 @@ class Registry(customtkinter.CTkToplevel): # register function
                 else:
                     entry.configure(border_color="gray")
 
-            if self.nameEntry.get() and self.usernameEntry.get() and self.passwordEntry.get() and self.rePasswordEntry.get() != "":
+            if self.nameEntry.get() and self.usernameEntry.get() and self.sipasswordEntry.get() and self.resipasswordEntry.get() != "":
                 fullname = self.nameEntry.get()
                 username = self.usernameEntry.get()
-                firstPassword = self.passwordEntry.get()
-                secondPassword = self.rePasswordEntry.get()
+                firstPassword = self.sipasswordEntry.get()
+                secondPassword = self.resipasswordEntry.get()
 
                 firstn = ""
                 lastn = ""
@@ -971,13 +1000,13 @@ class Registry(customtkinter.CTkToplevel): # register function
                                       placeholder_text_color="Grey")
         self.usernameEntry.grid(column=1, row=3, columnspan=2, pady=(0, 10))
 
-        self.passwordEntry = CTkEntry(self.frame, placeholder_text="Password", height=30, width=280,
+        self.sipasswordEntry = CTkEntry(self.frame, placeholder_text="Password", height=30, width=280,
                                       placeholder_text_color="Grey", show="*")
-        self.passwordEntry.grid(column=1, row=4, columnspan=4, pady=(0, 10))
+        self.sipasswordEntry.grid(column=1, row=4, columnspan=4, pady=(0, 10))
 
-        self.rePasswordEntry = CTkEntry(self.frame, placeholder_text="Re-enter password", height=30, width=280,
+        self.resipasswordEntry = CTkEntry(self.frame, placeholder_text="Re-enter password", height=30, width=280,
                                         placeholder_text_color="Grey", show="*")
-        self.rePasswordEntry.grid(column=1, row=5, columnspan=4, pady=(0, 10))
+        self.resipasswordEntry.grid(column=1, row=5, columnspan=4, pady=(0, 10))
 
         self.createBtn = CTkButton(self.frame, text="Create account", command=regSignup)
         self.createBtn.grid(column=1, row=6, columnspan=2, pady=(5, 10))
@@ -992,11 +1021,9 @@ class Registry(customtkinter.CTkToplevel): # register function
         self.btn = CTkButton(self.frame, text="Login", command=regBack)
         self.btn.grid(column=1, row=9, padx=(250, 250), pady=(0, 50), columnspan=2)
 
-# Create an instance of the main page class
-app = MainPage()
+if __name__ == "__main__":
+    app = MainPage(None)  # Create MainPage instance without showing it
+    SignInWindow = SignIn(app)  # Create initial SignIn instance
+    app.sign_in_window = SignInWindow  # Set the sign_in_window attribute of MainPage
 
-# Create instance of sign in class
-SignInWindow = SignIn(app)
-
-# Start the main event loop for the sign in instance.
-SignInWindow.mainloop()
+    SignInWindow.mainloop()  # Start with the sign-in window
