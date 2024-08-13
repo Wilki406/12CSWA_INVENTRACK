@@ -351,6 +351,15 @@ class MainPage(customtkinter.CTk):
                                                                button_hover_color="#01362f")
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
+        self.currencybox = CTkOptionMenu(self.optionsFrame,
+                                         values=["$", "€", "£", "¥", "₹", "₱", "ك", "원", "₺"],
+                                         command=self.currency_change,
+                                         fg_color="#006b5f",
+                                         dropdown_fg_color="#006b5f",
+                                         button_color="#014f46",
+                                         button_hover_color="#01362f")
+
+        self.currencybox.grid(row=6, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
     def init_account_page(self): # Initialise the accounts page
         label = CTkLabel(self.accountFrame, text="Account Details", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
@@ -372,6 +381,11 @@ class MainPage(customtkinter.CTk):
 
         self.signout = CTkButton(self.accountFrame, text="Sign Out", fg_color='#ab0000', hover_color='#6b0101', command=self.signOut)
         self.signout.grid(column=0, row=4, sticky="w", padx=(30, 5), pady=(25,0))
+
+
+    def currency_change(self):
+        return
+
 
     def signOut(self):
         self.withdraw()  # Hide the main window
@@ -420,6 +434,10 @@ class MainPage(customtkinter.CTk):
         invenData = [] # create a placeholder array
         print(idata)
 
+        global listofIDs
+        listofIDs = []
+        print(listofIDs)
+
         if not os.path.exists(idata): # check if the inventory for the user doesnt exist and if it doesnt make one
             with open(idata, 'w', newline='') as file:
                 writer = csv.writer(file)
@@ -427,8 +445,8 @@ class MainPage(customtkinter.CTk):
                 #print(f"new inventory csv file: {idata}")
         else:
             #print(f"inventory csv file already exists: {idata}")
-            global listofIDs
-            listofIDs = [] # placeholder array for the list of ids of items
+            # placeholder array for the list of ids of items
+
             with open(idata, 'r') as file: # read the already created iventory data for the current user
                 reader = csv.reader(file)
                 next(reader)  # skip header
@@ -440,7 +458,8 @@ class MainPage(customtkinter.CTk):
                     icategory = row[3]
                     icount = row[4]
 
-                    listofIDs.append([iid]) # append the data into the list of ids array
+                    listofIDs.append(iid) # append the data into the list of ids array
+                    print(listofIDs)
                     invenData.append([inames, iprice, iid, icategory, icount]) # make the 2D array with all the data
 
             # Add items from records to the Treeview
@@ -470,7 +489,6 @@ class MainPage(customtkinter.CTk):
                 else:
                     entry.configure(border_color="gray") # if they are not empty apply default colour
 
-            print(listofIDs)
             if (self.inameEntry.get() and self.priceEntry.get() and self.IDEntry.get() and
                     self.categoryEntry.get() and self.countEntry.get()): # if all boxes have entries
 
@@ -481,7 +499,7 @@ class MainPage(customtkinter.CTk):
                     itemPrice = self.priceEntry.get() # define the price
 
                     # check if the entered ID is not found in the first elements of tuples in the list of current IDs
-                    if self.IDEntry.get() not in listofIDs:
+                    if self.IDEntry.get() not in [id[0] for id in listofIDs]:
                         self.IDEntry.configure(border_color="gray") # clear past error if present
                         itemID = self.IDEntry.get() # define variables for ID and Category
                         itemCategory = self.categoryEntry.get()
@@ -616,7 +634,7 @@ class MainPage(customtkinter.CTk):
                 self.priceEntry.configure(border_color="gray")
                 itemPrice = self.priceEntry.get()
 
-                if self.IDEntry.get() not in listofIDs:
+                if self.IDEntry.get() not in [id[0] for id in listofIDs]:
                     self.IDEntry.configure(border_color="gray")
                     itemID = self.IDEntry.get()
                     itemCategory = self.categoryEntry.get()
@@ -771,18 +789,6 @@ class SignIn(customtkinter.CTkToplevel):
         global userLogged
         userLogged = ""
         showstate = "*"
-
-        def destroy(self):
-            if self.after_id:
-                self.after_cancel(self.after_id)
-            super().destroy()
-
-        def Mainback(self):
-            self.siuserEntry.delete(0, END)
-            self.sipasswordEntry.delete(0, END)
-
-            self.siuserEntry.configure(placeholder_text="Username")
-            self.sipasswordEntry.configure(placeholder_text="Password")
 
         def hidHandler(): # function for hiding the password entry box entries
             global showstate
