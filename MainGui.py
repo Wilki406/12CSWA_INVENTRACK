@@ -354,7 +354,7 @@ class MainPage(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
         self.currencybox = CTkOptionMenu(self.optionsFrame,
-                                         values=["$", "€", "£", "¥", "₹", "₱", "ك", "원", "₺"],
+                                         values=["$", "€", "£", "¥"],
                                          command=self.currency_change,
                                          fg_color="#006b5f",
                                          dropdown_fg_color="#006b5f",
@@ -362,6 +362,8 @@ class MainPage(customtkinter.CTk):
                                          button_hover_color="#01362f")
 
         self.currencybox.grid(row=6, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
+
+
     def init_account_page(self): # Initialise the accounts page
         label = CTkLabel(self.accountFrame, text="Account Details", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
@@ -386,24 +388,30 @@ class MainPage(customtkinter.CTk):
 
 
     def currency_change(self, inputcurrency: str):
-        newCurrrency = inputcurrency
+        self.newCurrrency = inputcurrency
 
-        if newCurrrency != startingCurrency:
+        for i, row in enumerate(records):
+            if userLogged in row[1] and idNum in row[0]:
+                records[i][7] = self.newCurrrency
 
-            for i, row in enumerate(records):
-                if userLogged in row[1] and idNum in row[0]:
-                    records[i][7] = newCurrrency
+        with open(data, 'w', newline='') as file: # write to the data
+            writer = csv.writer(file)
+            writer.writerow(userheaders) # write the userheaders
+            writer.writerows(records) # and new data
+            print(records)
 
-            with open(data, 'w', newline='') as file: # write to the data
-                writer = csv.writer(file)
-                writer.writerow(userheaders) # write the userheaders
-                print(userheaders)
-                writer.writerows(records) # and new data
-                print(records)
-
-            loadData(data)
+        loadData(data)
         return
 
+    def startCurrency_change(self):
+        loadData(data)
+        self.newCurrrency = ''
+        with open(data, 'r', encoding='utf-8') as file:
+            for i, row in enumerate(records):
+                if userLogged in row[1] and idNum in row[0]:
+                    self.newCurrrency = records[i][7]
+
+        self.currencybox.set(self.newCurrrency)
 
     def signOut(self):
         self.withdraw()  # Hide the main window
@@ -445,6 +453,8 @@ class MainPage(customtkinter.CTk):
         self.show_frame(self.inventoryFrame) # Display the frame
         self.current_page = self.inventoryFrame # set the current page
 
+        self.startCurrency_change()
+
         # Clear previous items in the Treeview
         self.tree.delete(*self.tree.get_children()) # delete the items within the treeview
         global idata
@@ -483,7 +493,7 @@ class MainPage(customtkinter.CTk):
 
             # Add items from records to the Treeview
             for record in invenData:
-                self.tree.insert("", "end", values=(record[0], ("$" + record[1]), record[2], record[3], record[4]))
+                self.tree.insert("", "end", values=(record[0], (self.newCurrrency + record[1]), record[2], record[3], record[4]))
 
     def is_numeric(self, var): # function to check for specific variables and return true or false depending
         if isinstance(var, (int, float)): # if variable is an integer or a float return true
