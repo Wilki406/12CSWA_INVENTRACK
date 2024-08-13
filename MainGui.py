@@ -18,17 +18,18 @@ from CTkToolTip import *
 # Defining variables for default scale and ui colour settings
 startingScale = "1"
 startingUIC = "Dark"
+startingCurrency = "$"
 
 # Defining header files for csv files and define the user data csv file
 data = 'userdata.csv'
-headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"]
+userheaders = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC", "Currency"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
 def createCSV():
     if not os.path.exists(data):  # check if the  for the user doesnt exist and if it doesnt make one
         with open(data, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(headers)  # write the headers for user data
+            writer.writerow(userheaders)  # write the userheaders for user data
 
 createCSV()
 # Load data function for user log in data
@@ -52,10 +53,11 @@ def loadData(data):
             lastNames = row[4]
             scales = row[5]
             UICs = row[6]
+            currencies = row[7]
 
             idRank.append(int(ids)) # Append the integer value to the array
             usernameLists.append(usernames) # Append the usernames to the array
-            records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs]) # 2D array of every       thing together
+            records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs, currencies]) # 2D array of every       thing together
 
     return records, usernameLists, idRank # Return it all
 
@@ -383,7 +385,23 @@ class MainPage(customtkinter.CTk):
         self.signout.grid(column=0, row=4, sticky="w", padx=(30, 5), pady=(25,0))
 
 
-    def currency_change(self):
+    def currency_change(self, inputcurrency: str):
+        newCurrrency = inputcurrency
+
+        if newCurrrency != startingCurrency:
+
+            for i, row in enumerate(records):
+                if userLogged in row[1] and idNum in row[0]:
+                    records[i][7] = newCurrrency
+
+            with open(data, 'w', newline='') as file: # write to the data
+                writer = csv.writer(file)
+                writer.writerow(userheaders) # write the userheaders
+                print(userheaders)
+                writer.writerows(records) # and new data
+                print(records)
+
+            loadData(data)
         return
 
 
@@ -400,12 +418,13 @@ class MainPage(customtkinter.CTk):
 
     def clear_user_data(self):
         # Clear any user-specific data
-        global userLogged, userFullname, idNum, startingScale, startingUIC
+        global userLogged, userFullname, idNum, startingScale, startingUIC, startingCurrency
         userLogged = ""
         userFullname = ""
         idNum = ""
         startingScale = "1"
         startingUIC = "Dark"
+        startingCurrency = "$"
 
         self.startUserScale(1)
         customtkinter.set_appearance_mode("Dark")
@@ -512,7 +531,7 @@ class MainPage(customtkinter.CTk):
                             with open(idata, 'w', newline='') as file: # write the header, current data, and new item
                                 writer = csv.writer(file)
                                 writer.writerow(invenheaders)
-                                print(headers)
+                                print(userheaders)
                                 writer.writerows(invenData)
                                 print(invenData)
                                 writer.writerow(newItem)
@@ -676,11 +695,13 @@ class MainPage(customtkinter.CTk):
                     else:
                         self.countEntry.configure(border_color="red")
                 else:
-                    self.priceEntry.configure(border_color="red")
+                    self.IDEntry.configure(border_color="red")
             else:
-                for entry, name in self.invenboxes:
-                    if entry.get() == "":
-                        entry.configure(border_color="red")
+                self.priceEntry.configure(border_color="red")
+        else:
+            for entry, name in self.invenboxes:
+                if entry.get() == "":
+                    entry.configure(border_color="red")
             return
 
 
@@ -744,8 +765,8 @@ class MainPage(customtkinter.CTk):
 
             with open(data, 'w', newline='') as file: # write to the data
                 writer = csv.writer(file)
-                writer.writerow(headers) # write the headers
-                print(headers)
+                writer.writerow(userheaders) # write the userheaders
+                print(userheaders)
                 writer.writerows(records) # and new data
                 print(records)
 
@@ -758,9 +779,9 @@ class MainPage(customtkinter.CTk):
                 if userLogged in row[1] and idNum in row[0]:
                     records[i][5] = str(new_scaling_float)
 
-            with open(data, 'w', newline='') as file: # write the new records and headers
+            with open(data, 'w', newline='') as file: # write the new records and userheaders
                 writer = csv.writer(file)
-                writer.writerow(headers)
+                writer.writerow(userheaders)
                 writer.writerows(records)
 
             self.show_frame(self.current_page) # re show the frame
@@ -968,12 +989,13 @@ class Registry(customtkinter.CTkToplevel): # register function
 
                         scaleF = 1.0
                         uiC = "dark"
-                        newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC]
+                        defcurrency = "$"
+                        newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC, defcurrency]
 
                         with open(data, 'w', newline='') as file:
                             writer = csv.writer(file)
-                            writer.writerow(headers)
-                            print(headers)
+                            writer.writerow(userheaders)
+                            print(userheaders)
                             writer.writerows(records)
                             print(records)
                             writer.writerow(newlist)
