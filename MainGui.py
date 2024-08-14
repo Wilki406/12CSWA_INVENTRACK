@@ -10,15 +10,17 @@ import tkinter.font as tkFont
 from ttkthemes import ThemedStyle
 import os
 from CTkToolTip import *
+import requests
+import json
 
-# Modifications:
-# list of IDs is appended to when item is added to inventory and id.get not in list of IDs if statement fixed
 
+# Currency API
+rateAPI = 'https://v6.exchangerate-api.com/v6/50c24a91bc6969ae68fe5672/latest/USD'
 
 # Defining variables for default scale and ui colour settings
 startingScale = "1"
 startingUIC = "Dark"
-startingCurrency = "$"
+startingCurrency = ""
 
 # Defining header files for csv files and define the user data csv file
 data = 'userdata.csv'
@@ -69,10 +71,6 @@ class MainPage(customtkinter.CTk):
     def __init__(self, sign_in_window):
         super().__init__()
         self.sign_in_window = sign_in_window
-
-
-
-
 
         self.title("InvenTracker") # Title the window
         self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight())) # Window size
@@ -215,6 +213,7 @@ class MainPage(customtkinter.CTk):
 
 
     def init_inventory_page(self): # initialization of the inventory page
+
         label = CTkLabel(self.inventoryFrame, text="Inventory", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 250), pady=(25, 25), columnspan=2, sticky="w")
@@ -354,7 +353,7 @@ class MainPage(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
         self.currencybox = CTkOptionMenu(self.optionsFrame,
-                                         values=["$", "€", "£", "¥"],
+                                         values=["USD$","AUD$", "€", "£", "¥"],
                                          command=self.currency_change,
                                          fg_color="#006b5f",
                                          dropdown_fg_color="#006b5f",
@@ -432,7 +431,7 @@ class MainPage(customtkinter.CTk):
         idNum = ""
         startingScale = "1"
         startingUIC = "Dark"
-        startingCurrency = "$"
+        startingCurrency = ""
 
         self.startUserScale(1)
         customtkinter.set_appearance_mode("Dark")
@@ -449,11 +448,41 @@ class MainPage(customtkinter.CTk):
 
 
     def goInventoryPage(self): # Function to function as the opening of the page
-        self.set_active_button(self.bt_inven) # Set the button to the active button
-        self.show_frame(self.inventoryFrame) # Display the frame
-        self.current_page = self.inventoryFrame # set the current page
+
+        self.set_active_button(self.bt_inven)  # Set the button to the active button
+        self.show_frame(self.inventoryFrame)  # Display the frame
+        self.current_page = self.inventoryFrame  # set the current page
 
         self.startCurrency_change()
+
+        acceptableCurrency = ["USD", "GBP", "AUD", "YEN"]
+        with open(data, 'r') as file:
+            reader = csv.reader(file)
+            next(reader)
+
+            for row in reader:
+                if row[7] == "":
+                    running = True
+                    while running == True:
+                        askCurrency = customtkinter.CTkInputDialog(
+                            text="Enter the currency you wish to use \n out of the following: \n USD, AUD, YEN, GBP",
+                            title="First time currency preference")
+                        selectedCurrency = askCurrency.get_input()
+                        if selectedCurrency in acceptableCurrency:
+
+                            for i, row in enumerate(records):
+                                if userLogged in row[1] and idNum in row[0]:
+                                    records[i][7] = selectedCurrency
+
+                            with open(data, 'w', newline='') as file:  # write to the data
+                                writer = csv.writer(file)
+                                writer.writerow(userheaders)  # write the userheaders
+                                writer.writerows(records)  # and new data
+
+                            loadData(data)
+
+                            running = False
+
 
         # Clear previous items in the Treeview
         self.tree.delete(*self.tree.get_children()) # delete the items within the treeview
@@ -465,7 +494,7 @@ class MainPage(customtkinter.CTk):
 
         global listofIDs
         listofIDs = []
-        print(listofIDs)
+        print(f"{listofIDs} this is the ID list")
 
         if not os.path.exists(idata): # check if the inventory for the user doesnt exist and if it doesnt make one
             with open(idata, 'w', newline='') as file:
@@ -999,8 +1028,8 @@ class Registry(customtkinter.CTkToplevel): # register function
 
                         scaleF = 1.0
                         uiC = "dark"
-                        defcurrency = "$"
-                        newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC, defcurrency]
+                        startingCurrency = ""
+                        newlist = [userDesRank, username, firstPassword, firstn, lastn, scaleF, uiC, startingCurrency]
 
                         with open(data, 'w', newline='') as file:
                             writer = csv.writer(file)
