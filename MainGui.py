@@ -354,7 +354,7 @@ class MainPage(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
         self.currencybox = CTkOptionMenu(self.optionsFrame,
-                                         values=["USD$","AUD$", "€", "£", "¥"],
+                                         values=["US$","AU$", "€", "£", "¥"],
                                          command=self.currency_change,
                                          fg_color="#006b5f",
                                          dropdown_fg_color="#006b5f",
@@ -454,9 +454,9 @@ class MainPage(customtkinter.CTk):
         self.show_frame(self.inventoryFrame)  # Display the frame
         self.current_page = self.inventoryFrame  # set the current page
 
-        acceptableCurrency = {"USD":"$",
+        acceptableCurrency = {"USD":"US$",
                               "GBP":"£",
-                              "AUD":"$",
+                              "AUD":"AU$",
                               "YEN":"¥",
                               "EUR":"€"}
 
@@ -477,6 +477,7 @@ class MainPage(customtkinter.CTk):
                     if self.selectedCurrency in acceptableCurrency.keys():
                         records[i][7] = self.selectedCurrency
                         print(f"Currency set to: {acceptableCurrency[self.selectedCurrency]}")
+                        self.newCurrency = self.selectedCurrency
                         updated = True
                         running = False
 
@@ -490,6 +491,7 @@ class MainPage(customtkinter.CTk):
             loadData(data)
         else:
             self.startCurrency_change()
+
         # Clear previous items in the Treeview
         self.tree.delete(*self.tree.get_children()) # delete the items within the treeview
         global idata
