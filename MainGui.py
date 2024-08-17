@@ -28,6 +28,8 @@ data = 'userdata.csv'
 userheaders = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC", "Currency"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
+
+
 def createCSV():
     if not os.path.exists(data):  # check if the  for the user doesnt exist and if it doesnt make one
         with open(data, 'w', newline='') as file:
@@ -73,6 +75,28 @@ class MainPage(customtkinter.CTk):
     def __init__(self, sign_in_window):
         super().__init__()
         self.sign_in_window = sign_in_window
+
+        self.CURRENCIES = {
+            "USD": {"code": "USD", "symbol": "USD"},  # United States Dollar
+            "EUR": {"code": "EUR", "symbol": "€"},  # Euro
+            "JPY": {"code": "JPY", "symbol": "¥"},  # Japanese Yen
+            "GBP": {"code": "GBP", "symbol": "£"},  # British Pound Sterling
+            "AUD": {"code": "AUD", "symbol": "AUD"},  # Australian Dollar
+            "CAD": {"code": "CAD", "symbol": "CAD"},  # Canadian Dollar
+            "CHF": {"code": "CHF", "symbol": "₣"},  # Swiss Franc
+            "CNY": {"code": "CNY", "symbol": "¥"},  # Chinese Yuan
+            "HKD": {"code": "HKD", "symbol": "HKD"},  # Hong Kong Dollar
+            "NZD": {"code": "NZD", "symbol": "NZD"},  # New Zealand Dollar
+            "KRW": {"code": "KRW", "symbol": "₩"},  # South Korean Won
+            "SGD": {"code": "SGD", "symbol": "S$"},  # Singapore Dollar
+            "NOK": {"code": "NOK", "symbol": "kr"},  # Norwegian Krone
+            "INR": {"code": "INR", "symbol": "₹"},  # Indian Rupee
+            "RUB": {"code": "RUB", "symbol": "₽"},  # Russian Ruble
+            "CLP": {"code": "CLP", "symbol": "₱"},  # Chilean Peso
+
+        }
+
+        self.currency_symbols = [currency["symbol"] for currency in self.CURRENCIES.values()]
 
         self.title("InvenTracker") # Title the window
         self.geometry("1200x600".format(self.winfo_screenwidth(), self.winfo_screenheight())) # Window size
@@ -354,15 +378,19 @@ class MainPage(customtkinter.CTk):
                                                                button_hover_color="#01362f")
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
+        label4 = CTkLabel(self.optionsFrame, text="Currency:", text_color=("black", "White"),
+                          font=('Berlin Sans FB', 40))
+        label4.grid(column=0, row=6, padx=(30, 30), pady=(25, 25), sticky="w")
+
         self.currencybox = CTkOptionMenu(self.optionsFrame,
-                                         values=["US$","AU$", "€", "£", "¥"],
+                                         values=self.currency_symbols,
                                          command=self.currencyChange,
                                          fg_color="#006b5f",
                                          dropdown_fg_color="#006b5f",
                                          button_color="#014f46",
                                          button_hover_color="#01362f")
 
-        self.currencybox.grid(row=6, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
+        self.currencybox.grid(row=7, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
 
     def init_account_page(self): # Initialise the accounts page
@@ -462,13 +490,6 @@ class MainPage(customtkinter.CTk):
         self.show_frame(self.inventoryFrame)  # Display the frame
         self.current_page = self.inventoryFrame  # set the current page
 
-        self.CURRENCIES = {
-            "USD": {"code": "USD", "symbol": "US$"},
-            "GBP": {"code": "GBP", "symbol": "£"},
-            "AUD": {"code": "AUD", "symbol": "AU$"},
-            "JPY": {"code": "JPY", "symbol": "¥"},
-            "EUR": {"code": "EUR", "symbol": "€"}
-        }
 
         update = False
 
@@ -544,7 +565,7 @@ class MainPage(customtkinter.CTk):
 
             # Add items from records to the Treeview
             for record in invenData:
-                self.tree.insert("", "end", values=(record[0], (self.displayCSymbol + record[1]), record[2], record[3], record[4]))
+                self.tree.insert("", "end", values=(record[0], (record[1] + " " + self.displayCSymbol), record[2], record[3], record[4]))
 
     def is_numeric(self, var): # function to check for specific variables and return true or false depending
         if isinstance(var, (int, float)): # if variable is an integer or a float return true
@@ -625,6 +646,7 @@ class MainPage(customtkinter.CTk):
             self.editstate = False
             for entry, name in self.invenboxes:
                     entry.delete(0, 'end')
+                    entry.configure(border_color="gray")
             self.clearbutton.configure(text="Clear", fg_color=self.ogc_fg, hover_color=self.ogc_hov)
             self.confirmbutton.destroy()
             self.goInventoryPage()
@@ -689,12 +711,13 @@ class MainPage(customtkinter.CTk):
                 # Save the row data as an instance variable
                 self.selected_row = row_data
                 print(f"Selected row in editInvenItem: {self.selected_row}")
-
+                charsToDel = len(self.displayCSymbol)
                 # Clear existing entries and insert new data
                 for i, (entry, name) in enumerate(self.invenboxes):
                     entry.delete(0, 'end')
                     if i == 1:  # this is the price entry
-                        entry.insert(0, row_data[i][1:])  # Remove the '$' sign
+                        print(self.displayCSymbol)
+                        entry.insert(0, row_data[i][charsToDel:]) # Remove the '$' sign
                     else:
                         entry.insert(0, str(row_data[i]))  # Convert all values to string
 
