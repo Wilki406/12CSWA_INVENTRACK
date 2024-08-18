@@ -22,11 +22,12 @@ rateAPI = 'https://v6.exchangerate-api.com/v6/50c24a91bc6969ae68fe5672/latest/US
 startingScale = "1"
 startingUIC = "Dark"
 startingCurrency = "NULL"
+startingThing = []
 
 # Defining header files for csv files and define the user data csv file
 data = 'userdata.csv'
 userheaders = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC", "Currency"]
-invenheaders = ["Name", "Price", "ID", "Category", "Count"]
+invenheaders = ["Name", "Price", "ID", "Category", "Count", "OverTime"]
 
 
 
@@ -77,16 +78,16 @@ class MainPage(customtkinter.CTk):
         self.sign_in_window = sign_in_window
 
         self.CURRENCIES = {
-            "USD": {"code": "USD", "symbol": "USD"},  # United States Dollar
+            "USD": {"code": "USD", "symbol": "US$"},  # United States Dollar
             "EUR": {"code": "EUR", "symbol": "€"},  # Euro
             "JPY": {"code": "JPY", "symbol": "¥"},  # Japanese Yen
             "GBP": {"code": "GBP", "symbol": "£"},  # British Pound Sterling
-            "AUD": {"code": "AUD", "symbol": "AUD"},  # Australian Dollar
-            "CAD": {"code": "CAD", "symbol": "CAD"},  # Canadian Dollar
+            "AUD": {"code": "AUD", "symbol": "AU$"},  # Australian Dollar
+            "CAD": {"code": "CAD", "symbol": "CA$"},  # Canadian Dollar
             "CHF": {"code": "CHF", "symbol": "₣"},  # Swiss Franc
             "CNY": {"code": "CNY", "symbol": "¥"},  # Chinese Yuan
-            "HKD": {"code": "HKD", "symbol": "HKD"},  # Hong Kong Dollar
-            "NZD": {"code": "NZD", "symbol": "NZD"},  # New Zealand Dollar
+            "HKD": {"code": "HKD", "symbol": "HK$"},  # Hong Kong Dollar
+            "NZD": {"code": "NZD", "symbol": "NZ$"},  # New Zealand Dollar
             "KRW": {"code": "KRW", "symbol": "₩"},  # South Korean Won
             "SGD": {"code": "SGD", "symbol": "S$"},  # Singapore Dollar
             "NOK": {"code": "NOK", "symbol": "kr"},  # Norwegian Krone
@@ -128,7 +129,7 @@ class MainPage(customtkinter.CTk):
         self.inventoryFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
         self.reportFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
         self.statisticsFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
-        self.optionsFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
+        self.settingsFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
         self.accountFrame = customtkinter.CTkFrame(self.mainContainer, corner_radius=10)
 
         # Initialize content for each frame
@@ -136,7 +137,7 @@ class MainPage(customtkinter.CTk):
         self.init_inventory_page()
         self.init_report_page()
         self.init_statistics_page()
-        self.init_options_page()
+        self.init_settings_page()
         self.init_account_page()
 
         # configurations
@@ -175,11 +176,11 @@ class MainPage(customtkinter.CTk):
         self.bt_stats.grid(row=3, column=0, pady=30)
         self.sidebar_buttons.append(self.bt_stats)
 
-        self.bt_options = customtkinter.CTkButton(self.sidebar_frame, text="Options", fg_color=buttonColour,
+        self.bt_settings = customtkinter.CTkButton(self.sidebar_frame, text="Settings", fg_color=buttonColour,
                                                   hover_color=buttonHoverColour, text_color=("black", "White"),
-                                                  width=175, height=60, corner_radius=0, command=self.goOptionsPage)
-        self.bt_options.grid(row=4, column=0, pady=30)
-        self.sidebar_buttons.append(self.bt_options)
+                                                  width=175, height=60, corner_radius=0, command=self.goSettingsPage)
+        self.bt_settings.grid(row=4, column=0, pady=30)
+        self.sidebar_buttons.append(self.bt_settings)
 
         self.bt_account = customtkinter.CTkButton(self.sidebar_frame, text="Account", fg_color=buttonColour,
                                                   hover_color=buttonHoverColour, text_color=("black", "White"),
@@ -345,18 +346,18 @@ class MainPage(customtkinter.CTk):
                          font=('Berlin Sans FB', 80))
         label.grid(column=1, row=1, padx=(30, 250), pady=(25, 25), columnspan=2)
 
-    def init_options_page(self): # initialise the options page
-        label = CTkLabel(self.optionsFrame, text="Program Settings", text_color=("black", "White"),
+    def init_settings_page(self): # initialise the settings page
+        label = CTkLabel(self.settingsFrame, text="Program Settings", text_color=("black", "White"),
                          font=('Berlin Sans FB', 80))
         label.grid(column=0, row=1, padx=(30, 30), pady=(25, 25))
 
-        label2 = CTkLabel(self.optionsFrame, text="UI Colour: ", text_color=("black", "White"),
+        label2 = CTkLabel(self.settingsFrame, text="UI Colour: ", text_color=("black", "White"),
                           font=('Berlin Sans FB', 40))
         label2.grid(column=0, row=2, padx=(30, 30), pady=(25, 25), sticky="w")
 
-        # Options page widgets
+        # settings page widgets
         self.appearanceModeOptionemenu = customtkinter.CTkOptionMenu(
-            self.optionsFrame,
+            self.settingsFrame,
             values=["Dark", "Light", "System"], # Colour states
             command=self.colourChange, # Function to change colour
             fg_color="#006b5f",
@@ -365,11 +366,11 @@ class MainPage(customtkinter.CTk):
             button_hover_color="#01362f")
         self.appearanceModeOptionemenu.grid(row=3, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
-        label3 = CTkLabel(self.optionsFrame, text="UI Scale:", text_color=("black", "White"),
+        label3 = CTkLabel(self.settingsFrame, text="UI Scale:", text_color=("black", "White"),
                           font=('Berlin Sans FB', 40))
         label3.grid(column=0, row=4, padx=(30, 30), pady=(25, 25), sticky="w")
 
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.optionsFrame,
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.settingsFrame,
                                                                values=["80%", "90%", "100%", "110%", "120%"], # scales
                                                                command=self.change_scaling_event, # function for scale
                                                                fg_color="#006b5f",
@@ -378,11 +379,11 @@ class MainPage(customtkinter.CTk):
                                                                button_hover_color="#01362f")
         self.scaling_optionemenu.grid(row=5, column=0, padx=(30, 20), pady=(10, 20), sticky="w")
 
-        label4 = CTkLabel(self.optionsFrame, text="Currency:", text_color=("black", "White"),
+        label4 = CTkLabel(self.settingsFrame, text="Currency:", text_color=("black", "White"),
                           font=('Berlin Sans FB', 40))
         label4.grid(column=0, row=6, padx=(30, 30), pady=(25, 25), sticky="w")
 
-        self.currencybox = CTkOptionMenu(self.optionsFrame,
+        self.currencybox = CTkOptionMenu(self.settingsFrame,
                                          values=self.currency_symbols,
                                          command=self.currencyChange,
                                          fg_color="#006b5f",
@@ -443,7 +444,7 @@ class MainPage(customtkinter.CTk):
 
     def show_frame(self, frame): # Function to show / hide frames, takes in a frame to be used
         # for loop to remove all frames
-        for f in [self.inventoryFrame, self.reportFrame, self.statisticsFrame, self.optionsFrame,
+        for f in [self.inventoryFrame, self.reportFrame, self.statisticsFrame, self.settingsFrame,
                   self.accountFrame]:
             f.grid_remove() # Remove from grid (NOT DELETE)
         frame.grid(column=1, row=0, rowspan=3, padx=(10, 30), pady=(10, 10), sticky=('nsew'))
@@ -502,7 +503,7 @@ class MainPage(customtkinter.CTk):
                     running = True
                     while running == True:
                         askCurrency = customtkinter.CTkInputDialog(text="Enter the currency you wish to use \n"
-                                                                        "Out of these five options:\n"
+                                                                        "Out of these five settings:\n"
                                                                         "USD, AUD, YEN, GBP, EUR",
                                                                    title="What currency would you like to use?")
 
@@ -565,7 +566,7 @@ class MainPage(customtkinter.CTk):
 
             # Add items from records to the Treeview
             for record in invenData:
-                self.tree.insert("", "end", values=(record[0], (record[1] + " " + self.displayCSymbol), record[2], record[3], record[4]))
+                self.tree.insert("", "end", values=(record[0], (self.displayCSymbol + " " + record[1]), record[2], record[3], record[4]))
 
     def is_numeric(self, var): # function to check for specific variables and return true or false depending
         if isinstance(var, (int, float)): # if variable is an integer or a float return true
@@ -619,7 +620,7 @@ class MainPage(customtkinter.CTk):
                         if self.countEntry.get().isnumeric() == True: # if count is an integer
                             self.countEntry.configure(border_color="gray") # clear error if present
                             itemCount = self.countEntry.get() # define count
-                            newItem = [itemName, itemPrice, itemID, itemCategory, itemCount] # define 2D array
+                            newItem = [itemName, itemPrice, itemID, itemCategory, itemCount, startingThing] # define 2D array
 
                             with open(self.idata, 'w', newline='') as file: # write the header, current data, and new item
                                 writer = csv.writer(file)
@@ -810,11 +811,11 @@ class MainPage(customtkinter.CTk):
         self.show_frame(self.statisticsFrame)
         self.current_page = self.statisticsFrame
 
-    def goOptionsPage(self): # navigate to and start the options page
+    def goSettingsPage(self): # navigate to and start the settings page
         # change the frame, button and page
-        self.set_active_button(self.bt_options)
-        self.show_frame(self.optionsFrame)
-        self.current_page = self.optionsFrame
+        self.set_active_button(self.bt_settings)
+        self.show_frame(self.settingsFrame)
+        self.current_page = self.settingsFrame
 
         # sets the widget to the current appearance mode
         self.appearanceModeOptionemenu.set(customtkinter.get_appearance_mode())
