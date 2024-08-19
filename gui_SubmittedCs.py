@@ -11,7 +11,7 @@ from ttkthemes import ThemedStyle
 import os
 from CTkToolTip import *
 
-#############################################
+############################################
 # TODO:
 #  data encryption, statistics page, report page,
 #  CURRENT BUGS: confirm edit with cleared boxes
@@ -24,8 +24,7 @@ from CTkToolTip import *
 #    Fixed edit bug that doesnt allow for the same id item to be changed
 #    Clear Id list after editing and deleting
 #    Fix edit function not editing
-#############################################
-
+############################################
 # Defining variables for default scale and ui colour settings
 startingScale = "1"
 startingUIC = "Dark"
