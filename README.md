@@ -1,6 +1,7 @@
-InvenTrack Program
 
-First time?
+# InvenTrack Program
+
+## First time?
 
 To get started open the program on your compatible desktop computer and
 familarize yourself with the log in window, press the register button
@@ -9,7 +10,7 @@ the register page, enter your relevant details such as fullname,
 username, and password and submit your details to have your Account 
 Created.
 
-Signing in?
+## Signing in?
 
 Please enter your account username into the username entry box, now
 enter your account password into the password entry box, if you need
@@ -19,7 +20,7 @@ submit your details and log in. If you have not registered an account
 before please see the 'First Time' guide to get started and make an
 account. 
 
-Navigating the Program?
+## Navigating the Program?
 
 Please familarize yourself with the program pages and explore each page.
 You can manage and view your inventory by pressing the top button on the
@@ -30,7 +31,7 @@ to the Statistics page by pressing the respective side bar button. You can
 change application settings by navigating to the options page. And lastly
 you can view your account details by going to the Account page. 
 
-Install required libraries:
+## Install required libraries:
 
 
 - customtkinter
@@ -44,7 +45,7 @@ Install required libraries:
 - CTkToolTip
 
 
-System Requirements:
+## System Requirements:
 
 
 - Windows 10 or later
