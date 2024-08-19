@@ -25,14 +25,22 @@ startingCurrency = "NULL"
 startingThing = []
 
 # Defining header files for csv files and define the user data csv file
-data = 'userdata.csv'
+
+directory = "Data"
+filename = "userdata.csv"
+data = os.path.join(directory, filename)
+
 userheaders = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC", "Currency"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count", "OverTime"]
 
 
 
 def createCSV():
-    if not os.path.exists(data):  # check if the  for the user doesnt exist and if it doesnt make one
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+        # Create the CSV file if it doesn't exist
+    if not os.path.exists(data):
         with open(data, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(userheaders)  # write the userheaders for user data
@@ -533,7 +541,7 @@ class MainPage(customtkinter.CTk):
         # Clear previous items in the Treeview
         self.tree.delete(*self.tree.get_children()) # delete the items within the treeview
         
-        self.idata = (f'{userLogged}_Inventory.csv') # define the name of the current users csv
+        self.idata = (f'Data/{userLogged}_Inventory.csv') # define the name of the current users csv
         global invenData
         invenData = []
 
