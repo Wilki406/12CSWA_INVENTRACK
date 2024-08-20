@@ -1,6 +1,17 @@
 
 # InvenTrack Program
 
+## Overview
+Inventrack is a comprehensive inventory management system designed to streamline the process of tracking and managing inventory items. It offers a suite of features that enable businesses to efficiently handle their inventory and sales operations. Key functionalities include:
+
+- Inventory Tracking: Monitors and updates the status of inventory items, ensuring accurate and up-to-date information on stock levels.
+
+- Sales Recording: Captures and logs sales transactions, providing detailed records for analysis and reporting.
+
+- Statistical Analysis: Generates insightful statistics and reports to help businesses understand trends, performance metrics, and operational efficiency.
+
+- Currency Conversion: Utilizes real-time exchange rates to track and adjust item prices across different currencies, facilitating accurate financial management and international transactions.
+
 ## First time?
 
 To get started open the program on your compatible desktop computer and
