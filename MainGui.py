@@ -493,62 +493,51 @@ class MainPage(customtkinter.CTk):
 
         loadData(data)
 
-    def goInventoryPage(self): # Function to function as the opening of the page
-
-        self.set_active_button(self.bt_inven)  # Set the button to the active button
-        self.show_frame(self.inventoryFrame)  # Display the frame
-        self.current_page = self.inventoryFrame  # set the current page
-
+    def goInventoryPage(self):
+        self.set_active_button(self.bt_inven)
+        self.show_frame(self.inventoryFrame)
+        self.current_page = self.inventoryFrame
 
         update = False
 
-        with open(data,'r') as file:
-            reader = csv.reader(file)
-            headers = next(reader)
+        for i, row in enumerate(records):
+            if row[1] == userLogged and row[7] == "NULL":
+                while True:
+                    askCurrency = customtkinter.CTkInputDialog(text="Enter the currency you wish to use \n"
+                                                                    "Out of these five settings:\n"
+                                                                    "USD, AUD, YEN, GBP, EUR",
+                                                               title="What currency would you like to use?")
 
-            for i,row in enumerate(records):
-                if row[7] == "NULL":
-                    running = True
-                    while running == True:
-                        askCurrency = customtkinter.CTkInputDialog(text="Enter the currency you wish to use \n"
-                                                                        "Out of these five settings:\n"
-                                                                        "USD, AUD, YEN, GBP, EUR",
-                                                                   title="What currency would you like to use?")
+                    selectedStartingCurrency = askCurrency.get_input()
+                    if selectedStartingCurrency in self.CURRENCIES.keys():
+                        records[i][7] = selectedStartingCurrency
+                        print(f"selected currency {selectedStartingCurrency}")
+                        self.displayCSymbol = self.CURRENCIES[selectedStartingCurrency]["symbol"]
+                        update = True
+                        break  # Exit the while loop
 
-                        selectedStartingCurrency = askCurrency.get_input()
-                        if selectedStartingCurrency in self.CURRENCIES.keys():
-                            running = False
-                            records[i][7] = selectedStartingCurrency
-                            print(f"selected currency {selectedStartingCurrency}")
-                            self.displayCSymbol = (self.CURRENCIES[selectedStartingCurrency]["symbol"])
-                            update = True
+                if update:
+                    with open(data, 'w', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(userheaders)
+                        writer.writerows(records)
 
-        if update == True:
-            print("displayCSymbol updated")
-            with open(data, 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(headers)
-                writer.writerows(records)
+                    self.currencybox.set(self.displayCSymbol)
+                    loadData(data)
+                    break  # Exit the for loop
 
-            self.currencybox.set(self.displayCSymbol)
-            loadData(data)
-        else:
+        if not update:
             self.startCurrency_change()
 
-
-
-
         # Clear previous items in the Treeview
-        self.tree.delete(*self.tree.get_children()) # delete the items within the treeview
-        
-        self.idata = (f'Data/{userLogged}_Inventory.csv') # define the name of the current users csv
+        self.tree.delete(*self.tree.get_children())
+
+        self.idata = (f'Data/{userLogged}_Inventory.csv')
         global invenData
         invenData = []
 
-
         global listofIDs
         listofIDs = []
-
 
         if not os.path.exists(self.idata):
             with open(self.idata, 'w', newline='') as file:
@@ -556,7 +545,6 @@ class MainPage(customtkinter.CTk):
                 writer.writerow(invenheaders)
 
         else:
-
             with open(self.idata, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
@@ -570,11 +558,12 @@ class MainPage(customtkinter.CTk):
 
                     listofIDs.append(iid)
 
-                    invenData.append([inames, iprice, iid, icategory, icount]) # make the 2D array with all the data
+                    invenData.append([inames, iprice, iid, icategory, icount])
 
             # Add items from records to the Treeview
             for record in invenData:
-                self.tree.insert("", "end", values=(record[0], (self.displayCSymbol + " " + record[1]), record[2], record[3], record[4]))
+                self.tree.insert("", "end", values=(
+                record[0], (self.displayCSymbol + " " + record[1]), record[2], record[3], record[4]))
 
     def is_numeric(self, var): # function to check for specific variables and return true or false depending
         if isinstance(var, (int, float)): # if variable is an integer or a float return true
