@@ -501,7 +501,7 @@ class MainPage(customtkinter.CTk):
         update = False
 
         for i, row in enumerate(records):
-            if row[1] == userLogged and row[7] == "NULL":
+            if row[1] == userLogged and row[7] == "NULL": # this saves lives!!!!
                 while True:
                     askCurrency = customtkinter.CTkInputDialog(text="Enter the currency you wish to use \n"
                                                                     "Out of these five settings:\n"
