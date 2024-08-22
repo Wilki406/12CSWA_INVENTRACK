@@ -13,7 +13,10 @@ from CTkToolTip import *
 import requests
 import json
 import re
+from cryptography.fernet import Fernet
 
+# Encryption.py
+from Encryption import *
 
 # Currency API
 rateAPI = 'https://v6.exchangerate-api.com/v6/50c24a91bc6969ae68fe5672/latest/USD'
@@ -45,6 +48,8 @@ def createCSV():
             writer = csv.writer(file)
             writer.writerow(userheaders)  # write the userheaders for user data
 
+        encryptCSV(data,"Data/eUserData.csv")
+
 createCSV()
 
 # Load data function for user log in data
@@ -55,8 +60,13 @@ def loadData(data):
     idRank = []
     usernameLists = []
 
+    decrypted_data = decryptCSV(data, "Data/deUserData.csv")
+    if decrypted_data is None:
+        print("Decryption failed. Unable to load data.")
+        return records, usernameLists, idRank
+
     # Read the user data CSV file
-    with open(data, 'r') as file:
+    with open(decrypted_data, 'r') as file:
         reader = csv.reader(file)
         next(reader) # Skip the header row
 
@@ -77,7 +87,7 @@ def loadData(data):
     return records, usernameLists, idRank # Return it all
 
 
-records, usernameLists, idRank = loadData(data) # Call upon the function tho define the arrays
+records, usernameLists, idRank = loadData(data) # Call upon the function to define the arrays
 
 
 class MainPage(customtkinter.CTk):
