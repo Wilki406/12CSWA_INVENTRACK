@@ -2,66 +2,69 @@ from cryptography.fernet import Fernet
 import os
 import cryptography
 
-keyPath = "Data/filekey.key"
 
-def fernKey():
-    os.makedirs(os.path.dirname(keyPath), exist_ok=True)
+def ensureDirectory(file_path):
+    directory = os.path.dirname(file_path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory)
 
-    if os.path.exists(keyPath):
-        with open(keyPath, 'rb') as file:
+
+
+def GetOrCreateKey(key_path):
+    ensureDirectory(key_path)
+    if os.path.exists(key_path):
+        with open(key_path, 'rb') as file:
             key = file.read()
-        fernet = Fernet(key)
     else:
         key = Fernet.generate_key()
-        fernet = Fernet(key)
-
-        # string the key in a file
-        with open(keyPath, 'wb') as filekey:
+        with open(key_path, 'wb') as filekey:
             filekey.write(key)
-
-    return fernet
-
+    return Fernet(key)
 
 
-def encryptCSV(fileToEncrypt, EncryptedFileName):
-    key = Fernet.generate_key()
 
-    # string the key in a file
-    with open(keyPath, 'wb') as filekey:
-        filekey.write(key)
+def encryptCSV(fileToEncrypt, encryptedFileName, key_path="Data/filekey.key"):
+    try:
+        fernet = GetOrCreateKey(key_path)
 
-    fernet = Fernet(key)
+        with open(fileToEncrypt, 'rb') as file:
+            original = file.read()
 
-    with open(fileToEncrypt, 'rb') as file:
-        original = file.read()
+        encrypted = fernet.encrypt(original)
 
-    # encrypting the file
-    encrypted = fernet.encrypt(original)
+        ensureDirectory(encryptedFileName)
+        with open(encryptedFileName, 'wb') as encrypted_file:  # Changed variable name
+            encrypted_file.write(encrypted)  # Write to the file, not the filename
 
-    # opening the file in write mode and
-    # writing the encrypted data
-    with open(EncryptedFileName, 'wb') as encrypted_file:
-        encrypted_file.write(encrypted)
+        return encryptedFileName
 
-#encryptCSV("Data/userdata.csv","Data/deUserData.csv")
+    except FileNotFoundError as e:
+        print(f"File not found: {e.filename}")
+    except PermissionError:
+        print(f"Permission denied when trying to access files")
+    except Exception as e:
+        print(f"Unexpected error in encryptCSV: {e}")
+    return None
+
+
 
 ###
 
-def decryptCSV(fileToDecrypt, DeEncryptedFileName):
+def decryptCSV(fileToDecrypt, decryptedFileName, key_path="Data/filekey.key"):
     try:
-        with open("Data/filekey.key", 'rb') as file:
-            key = file.read()
-        fernet = Fernet(key)
+        fernet = GetOrCreateKey(key_path)
 
         with open(fileToDecrypt, 'rb') as enc_file:
             encrypted = enc_file.read()
 
         decrypted = fernet.decrypt(encrypted)
 
-        with open(DeEncryptedFileName, 'wb') as dec_file:
+        ensureDirectory(decryptedFileName)
+        with open(decryptedFileName, 'wb') as dec_file:
             dec_file.write(decrypted)
 
-        return DeEncryptedFileName
+        return decryptedFileName
+
     except FileNotFoundError as e:
         print(f"File not found: {e.filename}")
     except PermissionError:
@@ -71,5 +74,6 @@ def decryptCSV(fileToDecrypt, DeEncryptedFileName):
     except Exception as e:
         print(f"Unexpected error in decryptCSV: {e}")
     return None
+
 
 #decryptCSV("Data/eUserData.csv","Data/deUserData.csv")

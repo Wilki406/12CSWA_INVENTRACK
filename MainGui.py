@@ -14,6 +14,7 @@ import requests
 import json
 import re
 from cryptography.fernet import Fernet
+import cryptography
 
 # Encryption.py
 from Encryption import *
@@ -36,8 +37,6 @@ data = os.path.join(directory, filename)
 userheaders = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC", "Currency"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count", "OverTime"]
 
-
-
 def createCSV():
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -48,46 +47,53 @@ def createCSV():
             writer = csv.writer(file)
             writer.writerow(userheaders)  # write the userheaders for user data
 
-        encryptCSV(data,"Data/eUserData.csv")
+        encrypted_file = encryptCSV(data,"Data/eUserData.csv")
+        if encrypted_file is None:
+            print("Encryption failed.")
 
 createCSV()
 
 # Load data function for user log in data
-def loadData(data):
+def loadData(encrypted_data):
 
     # Define placeholder arrays to be defined later
     records = []
     idRank = []
     usernameLists = []
 
-    decrypted_data = decryptCSV(data, "Data/deUserData.csv")
+    decrypted_data = decryptCSV(encrypted_data, "Data/deUserData.csv")
     if decrypted_data is None:
         print("Decryption failed. Unable to load data.")
         return records, usernameLists, idRank
 
-    # Read the user data CSV file
-    with open(decrypted_data, 'r') as file:
-        reader = csv.reader(file)
-        next(reader) # Skip the header row
+    try:
+        with open(decrypted_data, 'r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip the header row
 
-        for row in reader: # Define each column to its own array
-            ids = row[0]
-            usernames = row[1]
-            passwords = row[2]
-            firstNames = row[3]
-            lastNames = row[4]
-            scales = row[5]
-            UICs = row[6]
-            currencies = row[7]
+            for row in reader:
+                ids, usernames, passwords, firstNames, lastNames, scales, UICs, currencies = row
+                idRank.append(int(ids))
+                usernameLists.append(usernames)
+                records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs, currencies])
 
-            idRank.append(int(ids)) # Append the integer value to the array
-            usernameLists.append(usernames) # Append the usernames to the array
-            records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs, currencies]) # 2D array of every       thing together
+
+    except Exception as e:
+
+        print(f"Error reading decrypted data: {e}")
+
+
+    finally:
+
+        # Remove the temporary decrypted file
+
+        if os.path.exists(decrypted_data):
+            os.remove(decrypted_data)
 
     return records, usernameLists, idRank # Return it all
 
 
-records, usernameLists, idRank = loadData(data) # Call upon the function to define the arrays
+records, usernameLists, idRank = loadData("Data/eUserData.csv") # Call upon the function to define the arrays
 
 
 class MainPage(customtkinter.CTk):
