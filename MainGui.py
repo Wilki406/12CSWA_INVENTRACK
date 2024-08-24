@@ -8,13 +8,10 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
 from ttkthemes import ThemedStyle
-import os
 from CTkToolTip import *
-import requests
-import json
-import re
 from cryptography.fernet import Fernet
 import cryptography
+import os
 
 # Encryption.py
 from Encryption import *
@@ -29,7 +26,6 @@ startingCurrency = "NULL"
 startingThing = []
 
 # Defining header files for csv files and define the user data csv file
-
 directory = "Data"
 filename = "userdata.csv"
 data = os.path.join(directory, filename)
@@ -568,6 +564,7 @@ class MainPage(customtkinter.CTk):
             with open(self.idata, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(invenheaders)
+            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
 
         else:
             with open(self.idata, 'r') as file:
@@ -653,6 +650,7 @@ class MainPage(customtkinter.CTk):
                                 writer.writerow(newItem)
                                 print(newItem)
 
+                            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
                             self.clrInvenEntry() # clear the boxes
                             self.goInventoryPage() # reload the page / data
 
@@ -715,7 +713,7 @@ class MainPage(customtkinter.CTk):
                     writer.writerow(invenheaders)
                     writer.writerows(invenData)
                     print(f"CSV updated: {self.idata}")
-
+                encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
                 print(f"Deleted item: {self.selected_row}")
 
     def editInvenItem(self): # edit the item
@@ -802,6 +800,8 @@ class MainPage(customtkinter.CTk):
                                 writer = csv.writer(file)
                                 writer.writerow(invenheaders)
                                 writer.writerows(invenData)
+
+                            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
 
                             print(f"Updated invenData: {invenData}")
                             self.clrInvenEntry()
