@@ -20,7 +20,7 @@ headers = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC"
 invenheaders = ["Name", "Price", "ID", "Category", "Count"]
 
 # Load data function
-def loadData(data):
+def loadData(edata):
     records = []
     idRank = []
     usernameLists = []
@@ -44,7 +44,7 @@ def loadData(data):
 
     return records, usernameLists, idRank
 
-records, usernameLists, idRank = loadData(data)
+records, usernameLists, idRank = loadData(edata)
 
 class MainPage(customtkinter.CTk):
     def __init__(self):
@@ -529,7 +529,7 @@ class Registry(customtkinter.CTkToplevel):
         self.frame.grid()
 
         def regBack():
-            records, usernameLists, idRank = loadData(data)
+            records, usernameLists, idRank = loadData(edata)
             self.withdraw()
             self.sign_in_window.deiconify()
 

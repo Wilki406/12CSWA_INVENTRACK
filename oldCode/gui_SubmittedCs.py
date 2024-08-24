@@ -43,7 +43,7 @@ def createCSV():
 
 createCSV()
 # Load data function for user log in data
-def loadData(data):
+def loadData(edata):
 
     # Define placeholder arrays to be defined later
     records = []
@@ -71,7 +71,7 @@ def loadData(data):
     return records, usernameLists, idRank # Return it all
 
 
-records, usernameLists, idRank = loadData(data) # Call upon the function tho define the arrays
+records, usernameLists, idRank = loadData(edata) # Call upon the function tho define the arrays
 
 
 class MainPage(customtkinter.CTk): # Class for main window
@@ -722,7 +722,7 @@ class SignIn(customtkinter.CTkToplevel): # sign in class for sign in window
 
         def logHandler(): # big function to validate and allow for log in, into the ap
             global records, usernameLists, idRank
-            records, usernameLists, idRank = loadData(data) # load new data
+            records, usernameLists, idRank = loadData(edata) # load new data
             if self.userEntry.get() == "" and self.passwordEntry.get() == "":
                 self.labelsign.configure(text="Enter your details", text_color="red")
             elif self.userEntry.get() == "":
@@ -825,7 +825,7 @@ class Registry(customtkinter.CTkToplevel): # register function
         self.frame.grid()
 
         def regBack(): # go back to sign in
-            loadData(data)
+            loadData(edata)
             self.withdraw()
             self.sign_in_window.deiconify()
 

@@ -39,7 +39,7 @@ def createCSV(data, headers):
 
 
 createCSV(data, headers)
-def loadData(data):
+def loadData(edata):
     records = []
     idRank = []
     usernameLists = []
@@ -70,7 +70,7 @@ def loadData(data):
     return records, usernameLists, idRank
 
 
-records, usernameLists, idRank = loadData(data)
+records, usernameLists, idRank = loadData(edata)
 
 
 class MainPage(customtkinter.CTk):
@@ -706,7 +706,7 @@ class SignIn(customtkinter.CTkToplevel):
 
         def logHandler():
             global records, usernameLists, idRank
-            records, usernameLists, idRank = loadData(data)
+            records, usernameLists, idRank = loadData(edata)
             if self.userEntry.get() == "" and self.passwordEntry.get() == "":
                 self.labelsign.configure(text="Enter your details", text_color="red")
             elif self.userEntry.get() == "":
@@ -809,7 +809,7 @@ class Registry(customtkinter.CTkToplevel):
         self.frame.grid()
 
         def regBack():
-            loadData(data)
+            loadData(edata)
             self.withdraw()
             self.sign_in_window.deiconify()
 

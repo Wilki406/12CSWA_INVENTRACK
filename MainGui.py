@@ -33,6 +33,7 @@ startingThing = []
 directory = "Data"
 filename = "userdata.csv"
 data = os.path.join(directory, filename)
+edata = os.path.join(directory, "eUserData.csv")
 
 userheaders = ["ID", "username", "password", "firstName", "lastName", "Scale", "UIC", "Currency"]
 invenheaders = ["Name", "Price", "ID", "Category", "Count", "OverTime"]
@@ -55,11 +56,7 @@ createCSV()
 
 # Load data function for user log in data
 def loadData(encrypted_data):
-
-    # Define placeholder arrays to be defined later
-    records = []
-    idRank = []
-    usernameLists = []
+    records, usernameLists, idRank = [], [], []
 
     decrypted_data = decryptCSV(encrypted_data, "Data/deUserData.csv")
     if decrypted_data is None:
@@ -77,23 +74,33 @@ def loadData(encrypted_data):
                 usernameLists.append(usernames)
                 records.append([ids, usernames, passwords, firstNames, lastNames, scales, UICs, currencies])
 
+            print(f"Loaded {len(records)} records")
+            print(f"Usernames: {usernameLists}")
 
     except Exception as e:
-
         print(f"Error reading decrypted data: {e}")
 
-
     finally:
-
         # Remove the temporary decrypted file
-
         if os.path.exists(decrypted_data):
             os.remove(decrypted_data)
 
     return records, usernameLists, idRank # Return it all
 
-
 records, usernameLists, idRank = loadData("Data/eUserData.csv") # Call upon the function to define the arrays
+
+def test_decryption():
+    decrypted_data = decryptCSV("Data/eUserData.csv", "Data/test_decrypted.csv")
+    if decrypted_data:
+        with open(decrypted_data, 'r') as file:
+            print(file.read())
+        os.remove(decrypted_data)
+    else:
+        print("Decryption failed")
+
+# Call this function before attempting to sign in
+test_decryption()
+
 
 
 class MainPage(customtkinter.CTk):
@@ -507,7 +514,8 @@ class MainPage(customtkinter.CTk):
             writer.writerow(userheaders)
             writer.writerows(records)
 
-        loadData(data)
+        encryptCSV(data, edata)
+        loadData(edata)
 
     def goInventoryPage(self):
         self.set_active_button(self.bt_inven)
@@ -538,8 +546,9 @@ class MainPage(customtkinter.CTk):
                         writer.writerow(userheaders)
                         writer.writerows(records)
 
+                    encryptCSV(data, edata)
                     self.currencybox.set(self.displayCSymbol)
-                    loadData(data)
+                    loadData(edata)
                     break  # Exit the for loop
 
         if not update:
@@ -593,7 +602,7 @@ class MainPage(customtkinter.CTk):
         return False # default the return to false
 
     def getIDs(self):
-        loadData(data)
+        loadData(edata)
         with open(self.idata, 'r') as file:
             reader = csv.reader(file)
             next(reader)
@@ -877,6 +886,7 @@ class MainPage(customtkinter.CTk):
                 print(userheaders)
                 writer.writerows(records) # and new data
                 print(records)
+            encryptCSV(data, edata)
 
     def change_scaling_event(self, inputedScale: str): # change UI scale
         try:
@@ -891,6 +901,8 @@ class MainPage(customtkinter.CTk):
                 writer = csv.writer(file)
                 writer.writerow(userheaders)
                 writer.writerows(records)
+
+            encryptCSV(data, edata)
 
             self.show_frame(self.current_page) # re show the frame
 
@@ -935,7 +947,7 @@ class SignIn(customtkinter.CTkToplevel):
 
         def logHandler(): # big function to validate and allow for log in, into the ap
             global records, usernameLists, idRank
-            records, usernameLists, idRank = loadData(data) # load new data
+            records, usernameLists, idRank = loadData(edata) # load new data
             if self.siuserEntry.get() == "" and self.sipasswordEntry.get() == "":
                 self.labelsign.configure(text="Enter your details", text_color="red")
             elif self.siuserEntry.get() == "":
@@ -943,6 +955,12 @@ class SignIn(customtkinter.CTkToplevel):
             elif self.sipasswordEntry.get() == "":
                 self.labelsign.configure(text="Enter your password", text_color="red")
             else:
+                print(f"Loaded {len(records)} records")
+
+                entered_username = self.siuserEntry.get()
+                entered_password = self.sipasswordEntry.get()
+                print(f"Attempting login with username: {entered_username}")
+
                 for row in records:
                     if self.siuserEntry.get() == row[1] and self.sipasswordEntry.get() == row[2]:
                         fName = row[3]
@@ -1036,7 +1054,7 @@ class Registry(customtkinter.CTkToplevel): # register function
         self.frame.grid()
 
         def regBack(): # go back to sign in
-            loadData(data)
+            loadData(edata)
             self.withdraw()
             self.sign_in_window.deiconify()
 
@@ -1106,6 +1124,7 @@ class Registry(customtkinter.CTkToplevel): # register function
                             writer.writerow(newlist)
                             print(newlist)
 
+                        encryptCSV(data, edata)
                         regBack()
                         print("new user added")
                     else:
