@@ -39,7 +39,7 @@ def encryptCSV(fileToEncrypt, encryptedFileName, key_path="Data/filekey.key"):
         return encryptedFileName
 
     except FileNotFoundError as e:
-        print(f"File not found: {e.filename}")
+        print(f" en File not found: {e.filename}")
     except PermissionError:
         print(f"Permission denied when trying to access files")
     except Exception as e:
@@ -66,7 +66,7 @@ def decryptCSV(fileToDecrypt, decryptedFileName, key_path="Data/filekey.key"):
         return decryptedFileName
 
     except FileNotFoundError as e:
-        print(f"File not found: {e.filename}")
+        print(f" de File not found: {e.filename}")
     except PermissionError:
         print(f"Permission denied when trying to access files")
     except cryptography.fernet.InvalidToken:

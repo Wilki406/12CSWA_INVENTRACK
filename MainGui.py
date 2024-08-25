@@ -7,6 +7,10 @@ from PIL import Image
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
+
+#TODO: File not found: Data/w_Inventory.csv during encryption
+
+from rsa.cli import encrypt
 from ttkthemes import ThemedStyle
 from CTkToolTip import *
 from cryptography.fernet import Fernet
@@ -39,7 +43,7 @@ def createCSV():
         os.makedirs(directory)
 
         # Create the CSV file if it doesn't exist
-    if not os.path.exists(data):
+    if not os.path.exists(data) and not os.path.exists(edata):
         with open(data, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(userheaders)  # write the userheaders for user data
@@ -517,6 +521,10 @@ class MainPage(customtkinter.CTk):
         self.show_frame(self.inventoryFrame)
         self.current_page = self.inventoryFrame
 
+        currenciesLower = []
+        for i in self.CURRENCIES.keys():
+            currenciesLower.append(i.lower())
+
         update = False
 
         for i, row in enumerate(records):
@@ -528,10 +536,10 @@ class MainPage(customtkinter.CTk):
                                                                title="What currency would you like to use?")
 
                     selectedStartingCurrency = askCurrency.get_input()
-                    if selectedStartingCurrency in self.CURRENCIES.keys():
-                        records[i][7] = selectedStartingCurrency
-                        print(f"selected currency {selectedStartingCurrency}")
-                        self.displayCSymbol = self.CURRENCIES[selectedStartingCurrency]["symbol"]
+                    if selectedStartingCurrency.lower() in currenciesLower:
+                        records[i][7] = selectedStartingCurrency.upper()
+                        print(f"selected currency {selectedStartingCurrency.upper()}")
+                        self.displayCSymbol = self.CURRENCIES[selectedStartingCurrency.upper()]["symbol"]
                         update = True
                         break  # Exit the while loop
 
@@ -562,14 +570,15 @@ class MainPage(customtkinter.CTk):
 
         global listofIDs
         listofIDs = []
-
-        if not os.path.exists(self.idata):
+        print(self.idata)
+        if not os.path.exists(self.idata) and not os.path.exists(f"Data/E_{userLogged}_Inventory.csv"):
             with open(self.idata, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(invenheaders)
-            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
+            encryptCSV(self.idata, f"Data/E_{userLogged}_Inventory.csv")
 
         else:
+            decryptCSV(f"Data/E_{userLogged}_Inventory.csv",self.idata)
             with open(self.idata, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
@@ -584,6 +593,9 @@ class MainPage(customtkinter.CTk):
                     listofIDs.append(iid)
 
                     invenData.append([inames, iprice, iid, icategory, icount])
+
+            if os.path.exists(self.idata):
+                os.remove(self.idata)
 
             # Add items from records to the Treeview
             for record in invenData:
@@ -603,6 +615,9 @@ class MainPage(customtkinter.CTk):
 
     def getIDs(self):
         loadData(edata)
+
+        decryptCSV(f"Data/E_{userLogged}_Inventory.csv",self.idata)
+
         with open(self.idata, 'r') as file:
             reader = csv.reader(file)
             next(reader)
@@ -611,6 +626,9 @@ class MainPage(customtkinter.CTk):
                 iid = row[2]
                 listofIDs.append(iid)
             print(listofIDs)
+
+        if os.path.exists(self.idata):
+            os.remove(self.idata)
 
     def AddToInven(self):
         self.getIDs()
@@ -651,11 +669,13 @@ class MainPage(customtkinter.CTk):
                                 writer.writerows(invenData)
                                 print(invenData)
                                 writer.writerow(newItem)
-                                print(newItem)
+                                print(f"{newItem}  write success")
 
-                            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
                             self.clrInvenEntry() # clear the boxes
                             self.goInventoryPage() # reload the page / data
+                            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
+                            if os.path.exists(self.idata):
+                                os.remove(self.idata)
 
                         else:
                             self.countEntry.configure(border_color="red") # error with entry
@@ -718,6 +738,8 @@ class MainPage(customtkinter.CTk):
                     print(f"CSV updated: {self.idata}")
                 encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
                 print(f"Deleted item: {self.selected_row}")
+                if os.path.exists(self.idata):
+                    os.remove(self.idata)
 
     def editInvenItem(self): # edit the item
 
@@ -805,6 +827,9 @@ class MainPage(customtkinter.CTk):
                                 writer.writerows(invenData)
 
                             encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
+
+                            if os.path.exists(self.idata):
+                                os.remove(self.idata)
 
                             print(f"Updated invenData: {invenData}")
                             self.clrInvenEntry()
