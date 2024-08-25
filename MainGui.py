@@ -48,6 +48,9 @@ def createCSV():
         if encrypted_file is None:
             print("Encryption failed.")
 
+        if os.path.exists(data):
+            os.remove(data)
+
 createCSV()
 
 # Load data function for user log in data
@@ -84,20 +87,6 @@ def loadData(encrypted_data):
     return records, usernameLists, idRank # Return it all
 
 records, usernameLists, idRank = loadData("Data/eUserData.csv") # Call upon the function to define the arrays
-
-def test_decryption():
-    decrypted_data = decryptCSV("Data/eUserData.csv", "Data/test_decrypted.csv")
-    if decrypted_data:
-        with open(decrypted_data, 'r') as file:
-            print(file.read())
-        os.remove(decrypted_data)
-    else:
-        print("Decryption failed")
-
-# Call this function before attempting to sign in
-test_decryption()
-
-
 
 class MainPage(customtkinter.CTk):
     def __init__(self, sign_in_window):
@@ -478,7 +467,10 @@ class MainPage(customtkinter.CTk):
         self.current_page = frame # Sets the current frame to the frame put into function
 
     def startCurrency_change(self):
-        with open(data,'r') as file:
+        decrypted_data = decryptCSV(edata, "Data/deUserData.csv")
+
+
+        with open(decrypted_data,'r') as file:
             reader = csv.reader(file)
             headers = next(reader)
 
@@ -489,6 +481,10 @@ class MainPage(customtkinter.CTk):
                     break
 
         self.currencybox.set(self.displayCSymbol)
+
+        if os.path.exists(decrypted_data):
+            os.remove(decrypted_data)
+
 
     def currencyChange(self, currencyboxinput: str):
         print(currencyboxinput)
@@ -512,6 +508,9 @@ class MainPage(customtkinter.CTk):
 
         encryptCSV(data, edata)
         loadData(edata)
+
+        if os.path.exists(data):
+            os.remove(data)
 
     def goInventoryPage(self):
         self.set_active_button(self.bt_inven)
@@ -545,6 +544,10 @@ class MainPage(customtkinter.CTk):
                     encryptCSV(data, edata)
                     self.currencybox.set(self.displayCSymbol)
                     loadData(edata)
+
+                    if os.path.exists(data):
+                        os.remove(data)
+
                     break  # Exit the for loop
 
         if not update:
@@ -888,6 +891,9 @@ class MainPage(customtkinter.CTk):
                 print(records)
             encryptCSV(data, edata)
 
+            if os.path.exists(data):
+                os.remove(data)
+
     def change_scaling_event(self, inputedScale: str): # change UI scale
         try:
             new_scaling_float = int(inputedScale.replace("%", "")) / 100
@@ -903,6 +909,9 @@ class MainPage(customtkinter.CTk):
                 writer.writerows(records)
 
             encryptCSV(data, edata)
+
+            if os.path.exists(data):
+                os.remove(data)
 
             self.show_frame(self.current_page) # re show the frame
 
@@ -1125,6 +1134,8 @@ class Registry(customtkinter.CTkToplevel): # register function
                             print(newlist)
 
                         encryptCSV(data, edata)
+                        if os.path.exists(data):
+                            os.remove(data)
                         regBack()
                         print("new user added")
                     else:
