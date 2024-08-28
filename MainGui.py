@@ -258,7 +258,6 @@ class MainPage(customtkinter.CTk):
 
 
 
-
     def init_inventory_page(self): # initialization of the inventory page
 
         label = CTkLabel(self.inventoryFrame, text="Inventory", text_color=("black", "White"),
@@ -570,7 +569,7 @@ class MainPage(customtkinter.CTk):
 
         global listofIDs
         listofIDs = []
-        print(self.idata)
+        #print(self.idata)
         if not os.path.exists(self.idata) and not os.path.exists(f"Data/E_{userLogged}_Inventory.csv"):
             with open(self.idata, 'w', newline='') as file:
                 writer = csv.writer(file)
@@ -579,6 +578,7 @@ class MainPage(customtkinter.CTk):
 
         else:
             decryptCSV(f"Data/E_{userLogged}_Inventory.csv",self.idata)
+            print(f"decrypted E_{userLogged}_Inventory.csv")
             with open(self.idata, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
@@ -596,11 +596,22 @@ class MainPage(customtkinter.CTk):
 
             if os.path.exists(self.idata):
                 os.remove(self.idata)
+            print("meowwwwww")
 
+            print(invenData)
             # Add items from records to the Treeview
             for record in invenData:
-                self.tree.insert("", "end", values=(
-                record[0], (self.displayCSymbol + " " + record[1]), record[2], record[3], record[4]))
+                try:
+                    self.tree.insert("", "end", values=(
+                        record[0],
+                        (self.displayCSymbol + " " + record[1]),
+                        record[2],
+                        record[3],
+                        record[4]
+                    ))
+                    print(f"Inserted record: {record}")
+                except Exception as e:
+                    print(f"Error inserting record {record}: {e}")
 
     def is_numeric(self, var): # function to check for specific variables and return true or false depending
         if isinstance(var, (int, float)): # if variable is an integer or a float return true
@@ -615,7 +626,6 @@ class MainPage(customtkinter.CTk):
 
     def getIDs(self):
         loadData(edata)
-
         decryptCSV(f"Data/E_{userLogged}_Inventory.csv",self.idata)
 
         with open(self.idata, 'r') as file:
@@ -627,8 +637,6 @@ class MainPage(customtkinter.CTk):
                 listofIDs.append(iid)
             print(listofIDs)
 
-        if os.path.exists(self.idata):
-            os.remove(self.idata)
 
     def AddToInven(self):
         self.getIDs()
@@ -665,15 +673,16 @@ class MainPage(customtkinter.CTk):
                             with open(self.idata, 'w', newline='') as file: # write the header, current data, and new item
                                 writer = csv.writer(file)
                                 writer.writerow(invenheaders)
-                                print(userheaders)
+                                #print(userheaders)
                                 writer.writerows(invenData)
                                 print(invenData)
                                 writer.writerow(newItem)
                                 print(f"{newItem}  write success")
 
+                            encryptCSV(self.idata, f"Data/E_{userLogged}_Inventory.csv")
                             self.clrInvenEntry() # clear the boxes
                             self.goInventoryPage() # reload the page / data
-                            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
+                            self.update_idletasks()
                             if os.path.exists(self.idata):
                                 os.remove(self.idata)
 
@@ -826,7 +835,7 @@ class MainPage(customtkinter.CTk):
                                 writer.writerow(invenheaders)
                                 writer.writerows(invenData)
 
-                            encryptCSV(self.idata, f"Data/{userLogged}_Inventory.csv")
+                            encryptCSV(self.idata, f"Data/E_{userLogged}_Inventory.csv")
 
                             if os.path.exists(self.idata):
                                 os.remove(self.idata)
