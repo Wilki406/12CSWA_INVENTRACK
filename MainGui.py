@@ -7,14 +7,8 @@ from PIL import Image
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
-
-#TODO: File not found: Data/w_Inventory.csv during encryption
-
-from rsa.cli import encrypt
 from ttkthemes import ThemedStyle
 from CTkToolTip import *
-from cryptography.fernet import Fernet
-import cryptography
 import os
 
 # Encryption.py

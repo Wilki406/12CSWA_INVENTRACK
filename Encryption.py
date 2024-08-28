@@ -33,8 +33,8 @@ def encryptCSV(fileToEncrypt, encryptedFileName, key_path="Data/filekey.key"):
         encrypted = fernet.encrypt(original)
 
         ensureDirectory(encryptedFileName)
-        with open(encryptedFileName, 'wb') as encrypted_file:  # Changed variable name
-            encrypted_file.write(encrypted)  # Write to the file, not the filename
+        with open(encryptedFileName, 'wb') as encrypted_file:
+            encrypted_file.write(encrypted)
 
         return encryptedFileName
 
@@ -74,6 +74,3 @@ def decryptCSV(fileToDecrypt, decryptedFileName, key_path="Data/filekey.key"):
     except Exception as e:
         print(f"Unexpected error in decryptCSV: {e}")
     return None
-
-
-#decryptCSV("Data/eUserData.csv","Data/deUserData.csv")
