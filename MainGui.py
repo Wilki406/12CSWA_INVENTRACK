@@ -435,9 +435,10 @@ class MainPage(customtkinter.CTk):
         self.goInventoryPage()
 
         self.clear_user_data()
-        # Create a new SignIn window instead of showing the old one
-        new_sign_in_window = SignIn(self)
-        new_sign_in_window.mainloop()
+
+        # Create a new SignIn window
+        self.sign_in_window = SignIn(self)
+        self.sign_in_window.mainloop()
 
 
     def clear_user_data(self):
@@ -1034,7 +1035,7 @@ class SignIn(customtkinter.CTkToplevel):
         def regHandler():
             clearEntries()
             SignInWindow.withdraw()
-
+            app.sign_in_window.withdraw()
             # open new window
             registerWindow = Registry(SignInWindow)
             registerWindow.mainloop()
